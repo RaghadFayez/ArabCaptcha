@@ -39,10 +39,7 @@ def seed():
 
         # ── 2. Reference words (correct text known) ───────────────────────────
         ref_words_data = [
-            ("شمس",  "assets/words/ref_shams.png",  "manual"),
-            ("قمر",  "assets/words/ref_qamar.png",  "manual"),
-            ("بحر",  "assets/words/ref_bahr.png",   "manual"),
-            ("نجمة", "assets/words/ref_najma.png",  "manual"),
+            ("الحجاز", "assets/words/word1.jpg", "manual"),
         ]
         for text, path, source in ref_words_data:
             w = Word(image_path=path, word_type="reference")
@@ -52,9 +49,7 @@ def seed():
 
         # ── 3. Low-confidence words (correct text unknown) ────────────────────
         low_conf_data = [
-            ("assets/words/lc_unknown1.png", 0.30),
-            ("assets/words/lc_unknown2.png", 0.45),
-            ("assets/words/lc_unknown3.png", 0.20),
+            ("assets/words/word2.jpg", 0.40),
         ]
         for path, confidence in low_conf_data:
             w = Word(image_path=path, word_type="low_confidence")

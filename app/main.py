@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 
 from app.routers import session, challenge, solve, ocr, admin
 
@@ -17,6 +19,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount assets directory for rendering
+assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "words")
+if os.path.isdir(assets_dir):
+    app.mount("/assets/words", StaticFiles(directory=assets_dir), name="word_images")
 
 # Include all the API routers
 app.include_router(session.router)
