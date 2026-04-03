@@ -25,6 +25,10 @@ assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", 
 if os.path.isdir(assets_dir):
     app.mount("/assets/words", StaticFiles(directory=assets_dir), name="word_images")
 
+public_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public")
+if os.path.isdir(public_dir):
+    app.mount("/public", StaticFiles(directory=public_dir), name="public")
+
 # Include all the API routers
 app.include_router(session.router)
 app.include_router(challenge.router)
