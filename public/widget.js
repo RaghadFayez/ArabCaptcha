@@ -126,6 +126,24 @@ async function loadChallenge(keepStatus = false) {
   refImage.src = getFullUrl(data.ref_image_url);
   lowConfImage.src = getFullUrl(data.low_conf_image_url);
 
+  // Apply Dynamic Difficulty CSS
+  if (data.difficulty === "hard") {
+    refImage.style.filter = "contrast(200%) grayscale(100%) blur(1px)";
+    lowConfImage.style.filter = "contrast(200%) grayscale(100%) blur(1px)";
+    refImage.style.transform = "rotate(-3deg) scale(0.95)";
+    lowConfImage.style.transform = "rotate(3deg) scale(0.95)";
+  } else if (data.difficulty === "medium") {
+    refImage.style.filter = "contrast(150%) blur(0.5px)";
+    lowConfImage.style.filter = "contrast(150%) blur(0.5px)";
+    refImage.style.transform = "none";
+    lowConfImage.style.transform = "none";
+  } else {
+    refImage.style.filter = "none";
+    lowConfImage.style.filter = "none";
+    refImage.style.transform = "none";
+    lowConfImage.style.transform = "none";
+  }
+
   challengeStartedAt = performance.now();
 
   if (!keepStatus) {
