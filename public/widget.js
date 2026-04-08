@@ -53,6 +53,29 @@ const captchaStatus = document.getElementById("captchaStatus");
 const verifyBtn = document.getElementById("verifyCaptchaBtn");
 const refreshBtn = document.getElementById("refreshCaptcha");
 
+// -- لوحة الشرح الخاصة بالمطور --
+const debugScore = document.getElementById("debugScore");
+const debugDiff = document.getElementById("debugDiff");
+const debugBotBtn = document.getElementById("debugBotBtn");
+
+if (debugBotBtn) {
+  debugBotBtn.addEventListener("click", async () => {
+    // تزييف السلوكيات لتبدو كبوت آلي بنسبة 100%
+    behavioralData.mouse_moves = 0;
+    behavioralData.scrolls = 0;
+    behavioralData.paste_used = true;
+    behavioralData.webdriver = true;
+    behavioralData.first_interaction_ms = 40; // استجابة سريعة جداً كالبوت
+    behavioralData.failed_attempts = 5;
+
+    // إجبار النظام على بدء جلسة جديدة بالبيانات المريبة لرؤية النتيجة فوراً
+    sessionId = null;
+    captchaStatus.textContent = "🤖 جاري المحاكاة...";
+    captchaStatus.style.color = "#0056b3";
+    await loadChallenge();
+  });
+}
+
 function notifyParentHeight() {
   const height = document.documentElement.scrollHeight;
   window.parent.postMessage({ type: "ARABCAPTCHA_RESIZE", height: height }, "*");
@@ -86,6 +109,12 @@ async function createSession() {
 
   const data = await response.json();
   sessionId = data.session_id;
+
+  // إظهار النقاط في واجهة التطوير
+  if (debugScore) {
+    debugScore.textContent = data.bot_score || 0;
+  }
+
   return data;
 }
 
@@ -132,16 +161,19 @@ async function loadChallenge(keepStatus = false) {
     lowConfImage.style.filter = "contrast(200%) grayscale(100%) blur(1px)";
     refImage.style.transform = "rotate(-3deg) scale(0.95)";
     lowConfImage.style.transform = "rotate(3deg) scale(0.95)";
+    if (debugDiff) debugDiff.textContent = "صعب جداً (Hard - Bot!)";
   } else if (data.difficulty === "medium") {
     refImage.style.filter = "contrast(150%) blur(0.5px)";
     lowConfImage.style.filter = "contrast(150%) blur(0.5px)";
     refImage.style.transform = "none";
     lowConfImage.style.transform = "none";
+    if (debugDiff) debugDiff.textContent = "متوسط (Medium)";
   } else {
     refImage.style.filter = "none";
     lowConfImage.style.filter = "none";
     refImage.style.transform = "none";
     lowConfImage.style.transform = "none";
+    if (debugDiff) debugDiff.textContent = "عادي للآدميين (Easy)";
   }
 
   challengeStartedAt = performance.now();
@@ -246,6 +278,7 @@ verifyBtn.addEventListener("click", async () => {
 
   try {
     behavioralData.failed_attempts = failedAttempts;
+    behavioralData.submit_time_ms = responseTimeMs;
 
     const response = await fetch(`${BACKEND_BASE_URL}/challenges/${challengeId}/solve`, {
       method: "POST",

@@ -52,6 +52,23 @@
         <div class="cap-status" id="captchaStatus" role="status" aria-live="polite"></div>
       </div>
     </div>
+
+    <!-- لوحة عرض للمطور لغرض التجربة أثناء العرض التقديمي -->
+    <div class="cap-debug"
+      style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.03); border: 1px dashed #999; border-radius: 8px; font-family: sans-serif; direction: rtl; text-align: right;">
+      <h4 style="margin: 0 0 8px 0; color: #333;">🕵️ أدوات المطور (للشرح والتجربة)</h4>
+      <div style="font-size: 13px; margin-bottom: 10px;">
+        <strong>درجة البوت الآلي: </strong> <span id="debugScore" style="color:#b03a2e; font-weight:bold;">0</span> /
+        100 <br>
+        <strong>مستوى الصعوبة الحالي: </strong> <span id="debugDiff" style="color:#b03a2e; font-weight:bold;">عادي
+          (Easy)</span>
+      </div>
+      <button
+        style="border: 1px solid #0056b3; background: transparent; color: #0056b3; cursor: pointer; padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold;"
+        type="button" id="debugBotBtn">
+        🤖 محاكاة سلوك البوت (تحدي صعب)
+      </button>
+    </div>
   </main>
 
   <script src="widget.js"></script>

@@ -15,10 +15,11 @@ from sqlalchemy.orm import Session
 
 from app.db.models import (
     Challenge, Attempt, ReferenceWord,
-    LowConfidenceSubmission, BehaviorLog,
+    LowConfidenceSubmission, BehaviorLog, SiteSession
 )
 from app.utils.text_normalizer import normalize_arabic, texts_match
 from app.services.consensus_service import update_consensus
+from app.utils.bot_scorer import calculate_bot_score
 
 
 def solve_challenge(
@@ -91,6 +92,15 @@ def solve_challenge(
             signals_json=signals_json,
         )
         db.add(log)
+        
+        # ── Recalculate Bot Score ────────────────────────────────────────────
+        current_bot_score = calculate_bot_score(signals_json)
+        challenge.bot_score = current_bot_score
+        
+        # Keep session updated with the latest score for adaptive difficulty
+        session = db.query(SiteSession).filter(SiteSession.session_id == challenge.session_id).first()
+        if session:
+            session.bot_score_final = current_bot_score
 
     # ── If reference answer is correct → Trust Gate passed ───────────────
     token = None

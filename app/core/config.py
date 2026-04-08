@@ -5,6 +5,7 @@ This file holds all application settings.
 Change values here to tune the system behavior without touching any logic code.
 """
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -12,6 +13,14 @@ class Settings(BaseSettings):
     # SQLite (development). To switch to MySQL, change to:
     # "mysql+pymysql://user:password@localhost/arabcaptcha"
     DATABASE_URL: str = "sqlite:///./arabcaptcha.db"
+
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def assemble_db_connection(cls, v: str) -> str:
+        # SQLAlchemy 1.4+ removed support for "postgres://", requires "postgresql://"
+        if v and v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql://", 1)
+        return v
 
     # ── Bot Score Thresholds ─────────────────────────────────────────────────
     # Score is 0-100. Higher = more suspicious.

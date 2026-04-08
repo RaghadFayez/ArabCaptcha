@@ -53,7 +53,7 @@ def create_challenge(session_id: str, db: Session) -> Challenge:
         raise HTTPException(status_code=503, detail="No low-confidence words available")
 
     # ── Determine difficulty ─────────────────────────────────────────────
-    bot_score = site_session.bot_score_initial or 0.0
+    bot_score = site_session.bot_score_final or site_session.bot_score_initial or 0.0
     difficulty = determine_difficulty(bot_score)
 
     # ── Create challenge ─────────────────────────────────────────────────

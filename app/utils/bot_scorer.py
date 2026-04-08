@@ -33,7 +33,9 @@ def calculate_bot_score(signals_json: str | None) -> float:
     score = 0.0
 
     # Fast submit (< 800ms)
-    submit_time = signals.get("submit_time_ms", 5000)
+    submit_time = signals.get("submit_time_ms")
+    if submit_time is None:
+        submit_time = 5000
     if submit_time < 800:
         score += settings.WEIGHT_FAST_SUBMIT
 
@@ -42,9 +44,13 @@ def calculate_bot_score(signals_json: str | None) -> float:
         score += settings.WEIGHT_PASTE_USED
 
     # No mouse movement AND no scroll
-    mouse_moves = signals.get("mouse_moves", 1)
-    scroll_events = signals.get("scroll_events", 1)
-    if mouse_moves == 0 and scroll_events == 0:
+    mouse_moves = signals.get("mouse_moves")
+    if mouse_moves is None:
+        mouse_moves = 1
+    scrolls = signals.get("scrolls")
+    if scrolls is None:
+        scrolls = 1
+    if mouse_moves == 0 and scrolls == 0:
         score += settings.WEIGHT_NO_MOUSE
 
     # Webdriver detected
@@ -52,17 +58,23 @@ def calculate_bot_score(signals_json: str | None) -> float:
         score += settings.WEIGHT_WEBDRIVER
 
     # First interaction too fast (< 150ms)
-    first_interaction = signals.get("first_interaction_ms", 500)
+    first_interaction = signals.get("first_interaction_ms")
+    if first_interaction is None:
+        first_interaction = 500
     if first_interaction < 150:
         score += settings.WEIGHT_FAST_FIRST_INTERACTION
 
     # Excessive tab switching (> 3 times)
-    focus_blur = signals.get("focus_blur_count", 0)
+    focus_blur = signals.get("focus_blur_count")
+    if focus_blur is None:
+        focus_blur = 0
     if focus_blur > 3:
         score += settings.WEIGHT_FOCUS_BLUR
 
     # Too many failed attempts (>= 3)
-    failed_attempts = signals.get("failed_attempts", 0)
+    failed_attempts = signals.get("failed_attempts")
+    if failed_attempts is None:
+        failed_attempts = 0
     if failed_attempts >= 3:
         score += settings.WEIGHT_TOO_MANY_ATTEMPTS
 

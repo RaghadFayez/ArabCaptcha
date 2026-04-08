@@ -24,6 +24,11 @@ Base.metadata.create_all(bind=engine)
 def seed():
     db = SessionLocal()
     try:
+        # Check if already seeded
+        if db.query(ClientSite).filter_by(site_name="Demo Site").first():
+            print("✅ Database already seeded. Skipping...")
+            return
+
         # ── 1. Demo client site ───────────────────────────────────────────────
         raw_key = "demo_secret_key"
         site = ClientSite(
