@@ -1,4 +1,4 @@
-const BACKEND_BASE_URL = "http://127.0.0.1:8000";
+const BACKEND_BASE_URL = "https://arabcaptcha.onrender.com";
 
 let sessionId = null;
 let challengeId = null;
