@@ -5,9 +5,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ArabCaptcha — Demo</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
     <style>
+        :root {
+            --bg: #f2efe9;
+            --card: rgba(255, 255, 255, 0.82);
+            --stroke: rgba(0, 0, 0, 0.09);
+            --text: #2a2a2a;
+            --muted: rgba(0, 0, 0, 0.50);
+            --btn: #6b5f52;
+            --btn-hover: #5a5046;
+            --shadow: 0 24px 60px rgba(0, 0, 0, 0.13);
+            --radius: 18px;
+        }
+
         *,
         *::before,
         *::after {
@@ -16,311 +26,237 @@
             padding: 0;
         }
 
-        :root {
-            --accent: #4f46e5;
-            --accent-light: #6366f1;
-            --bg: #0f0e17;
-            --surface: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-            --text: #fffffe;
-            --muted: #a7a9be;
-        }
-
         body {
             min-height: 100vh;
             background: var(--bg);
-            font-family: 'Tajawal', sans-serif;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
             color: var(--text);
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
+
+        .wrapper {
+            width: min(420px, 92vw);
             display: flex;
             flex-direction: column;
-            align-items: center;
+            gap: 16px;
         }
 
-        /* ── Header ── */
-        header {
-            width: 100%;
-            padding: 1.2rem 2rem;
+        /* ── Logo row ── */
+        .brand {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            border-bottom: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 4px;
         }
 
-        .logo-badge {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, var(--accent), #818cf8);
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: var(--btn);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.1rem;
+            color: #fff;
         }
 
-        header h1 {
+        .brand h1 {
             font-size: 1.2rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #fff, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .badge {
-            margin-right: auto;
-            background: rgba(99, 102, 241, 0.2);
-            color: #818cf8;
-            border: 1px solid rgba(99, 102, 241, 0.4);
-            border-radius: 999px;
-            padding: 0.2rem 0.75rem;
-            font-size: 0.75rem;
             font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text);
         }
 
-        /* ── Hero ── */
-        .hero {
-            text-align: center;
-            padding: 4rem 2rem 2rem;
-        }
-
-        .hero h2 {
-            font-size: clamp(1.8rem, 5vw, 3rem);
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-        }
-
-        .hero h2 span {
-            background: linear-gradient(90deg, #6366f1, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
-            color: var(--muted);
-            font-size: 1.1rem;
-            max-width: 480px;
-            margin: 0 auto 2.5rem;
-            line-height: 1.7;
+        .live-badge {
+            background: rgba(107, 95, 82, 0.12);
+            color: var(--btn);
+            border: 1px solid rgba(107, 95, 82, 0.25);
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
         }
 
         /* ── Demo card ── */
-        .demo-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            width: min(480px, 90vw);
-            backdrop-filter: blur(16px);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
-            margin-bottom: 1rem;
+        .card {
+            background: var(--card);
+            border: 1px solid var(--stroke);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px 22px 18px;
         }
 
-        .demo-card-label {
-            font-size: 0.75rem;
-            font-weight: 700;
+        .card-label {
+            font-size: 11px;
             color: var(--muted);
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 1rem;
+            letter-spacing: 0.07em;
+            font-weight: 600;
+            margin-bottom: 14px;
         }
 
-        /* ── Widget iframe ── */
-        .widget-wrapper {
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .widget-wrapper iframe {
+        /* ── Captcha frame — grows with content ── */
+        .captcha-frame {
             width: 100%;
-            height: 60px;
             border: none;
             border-radius: 12px;
+            display: block;
+            /* Start at collapsed height; JS will expand it */
+            height: 68px;
+            transition: height 0.25s ease;
             background: transparent;
-            transition: height 0.3s ease;
         }
 
-        /* ── Code snippet ── */
-        .snippet-section {
-            width: min(480px, 90vw);
-            margin-bottom: 4rem;
-        }
-
+        /* ── Snippet box ── */
         .snippet-label {
-            font-size: 0.8rem;
+            font-size: 12px;
             color: var(--muted);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+            margin-bottom: 6px;
         }
 
         .snippet {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid var(--stroke);
             border-radius: 12px;
-            padding: 1rem 1.25rem;
+            padding: 12px 14px;
             font-family: 'Courier New', monospace;
-            font-size: 0.78rem;
-            color: #a78bfa;
-            line-height: 1.7;
+            font-size: 0.72rem;
+            color: var(--btn);
+            line-height: 1.6;
             word-break: break-all;
             position: relative;
         }
 
         .copy-btn {
             position: absolute;
-            top: 0.6rem;
-            left: 0.6rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--border);
-            color: var(--muted);
+            top: 8px;
+            left: 8px;
+            background: rgba(107, 95, 82, 0.10);
+            border: 1px solid rgba(107, 95, 82, 0.20);
+            color: var(--btn);
             border-radius: 8px;
-            padding: 0.2rem 0.6rem;
-            font-size: 0.7rem;
+            padding: 2px 9px;
+            font-size: 0.68rem;
             cursor: pointer;
-            font-family: 'Tajawal', sans-serif;
-            transition: all 0.2s;
+            font-family: inherit;
+            font-weight: 600;
+            transition: background 0.15s;
         }
 
         .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
+            background: rgba(107, 95, 82, 0.18);
         }
 
-        /* ── Features grid ── */
+        /* ── Features ── */
         .features {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            width: min(480px, 90vw);
-            margin-bottom: 4rem;
+            gap: 10px;
         }
 
         .feat {
-            background: var(--surface);
-            border: 1px solid var(--border);
+            background: var(--card);
+            border: 1px solid var(--stroke);
             border-radius: 14px;
-            padding: 1rem;
+            padding: 12px 8px;
             text-align: center;
         }
 
         .feat-icon {
-            font-size: 1.6rem;
-            margin-bottom: 0.4rem;
+            font-size: 1.4rem;
+            margin-bottom: 4px;
         }
 
         .feat-title {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
             color: var(--text);
         }
 
         .feat-sub {
-            font-size: 0.7rem;
+            font-size: 0.67rem;
             color: var(--muted);
-            margin-top: 0.2rem;
-        }
-
-        /* ── Glow background ── */
-        .glow {
-            position: fixed;
-            top: -200px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        header,
-        .hero,
-        .demo-card,
-        .snippet-section,
-        .features {
-            position: relative;
-            z-index: 1;
+            margin-top: 2px;
         }
     </style>
 </head>
 
 <body>
-    <div class="glow"></div>
+    <div class="wrapper">
 
-    <header>
-        <div class="logo-badge">🔐</div>
-        <h1>ArabCaptcha</h1>
-        <span class="badge">Live Demo</span>
-    </header>
+        <div class="brand">
+            <div class="brand-logo">🔐</div>
+            <h1>ArabCaptcha</h1>
+            <span class="live-badge">Live Demo</span>
+        </div>
 
-    <section class="hero">
-        <h2>نظام كابتشا <span>عربي ذكي</span></h2>
-        <p>أداة تحقق مبنية على الذكاء الاصطناعي، تكتشف البوتات من خلال تحليل سلوك المستخدم تلقائياً.</p>
-    </section>
+        <div class="card">
+            <div class="card-label">🧪 جرّب الكابتشا مباشرة</div>
+            <iframe id="captchaFrame" class="captcha-frame"
+                src="/public/widget.html?domain=https://arabcaptcha.onrender.com&site_key=demo" scrolling="no"
+                allowtransparency="true"></iframe>
+        </div>
 
-    <div class="demo-card">
-        <div class="demo-card-label">🧪 جرّب الودجت مباشرة</div>
-        <div class="widget-wrapper" id="arabcaptcha-widget"></div>
+        <div class="card">
+            <div class="snippet-label">📦 أضف الكابتشا لأي موقع بسطر واحد:</div>
+            <div class="snippet">
+                <button class="copy-btn" onclick="copySnippet()">نسخ</button>
+                &lt;script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"&gt;&lt;/script&gt;
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feat">
+                <div class="feat-icon">🤖</div>
+                <div class="feat-title">كشف البوت</div>
+                <div class="feat-sub">تحليل سلوكي فوري</div>
+            </div>
+            <div class="feat">
+                <div class="feat-icon">🌍</div>
+                <div class="feat-title">عربي أصيل</div>
+                <div class="feat-sub">ألغاز بالخط العربي</div>
+            </div>
+            <div class="feat">
+                <div class="feat-icon">⚡</div>
+                <div class="feat-title">API مفتوحة</div>
+                <div class="feat-sub">قابلة للدمج بأي موقع</div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="snippet-section">
-        <div class="snippet-label">📦 أضف الودجت لأي موقع بسطر واحد:</div>
-        <div class="snippet" id="snippet-box">
-            <button class="copy-btn" onclick="copySnippet()">نسخ</button>
-            &lt;script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"&gt;&lt;/script&gt;
-        </div>
-    </div>
-
-    <div class="features">
-        <div class="feat">
-            <div class="feat-icon">🤖</div>
-            <div class="feat-title">كشف البوت</div>
-            <div class="feat-sub">تحليل سلوكي فوري</div>
-        </div>
-        <div class="feat">
-            <div class="feat-icon">🌍</div>
-            <div class="feat-title">عربي أصيل</div>
-            <div class="feat-sub">ألغاز بالخط العربي</div>
-        </div>
-        <div class="feat">
-            <div class="feat-icon">⚡</div>
-            <div class="feat-title">API مفتوحة</div>
-            <div class="feat-sub">قابلة للدمج بأي موقع</div>
-        </div>
-    </div>
-
-    <script src="/public/arabcaptcha.js"></script>
     <script>
-        // Inject the widget into the container div
-        window.addEventListener('load', () => {
-            const container = document.getElementById('arabcaptcha-widget');
-            const params = new URLSearchParams({
-                domain: window.location.origin,
-                site_key: "demo-site-key"
-            });
-            const iframe = document.createElement('iframe');
-            iframe.src = `/public/widget.html?${params.toString()}`;
-            iframe.width = '100%';
-            iframe.style.height = '60px';
-            iframe.style.border = 'none';
-            iframe.style.borderRadius = '12px';
-            iframe.style.transition = 'height 0.3s ease';
-            container.appendChild(iframe);
+        const frame = document.getElementById('captchaFrame');
 
-            // Listen for height change messages from widget
-            window.addEventListener('message', (e) => {
-                if (e.data && e.data.type === 'arabcaptcha:resize') {
-                    iframe.style.height = e.data.height + 'px';
-                }
-            });
+        // Expand iframe when widget opens challenge (page 2 is taller)
+        window.addEventListener('message', (e) => {
+            if (!e.data) return;
+            // arabcaptcha resize event
+            if (e.data.type === 'arabcaptcha:resize' && e.data.height) {
+                frame.style.height = e.data.height + 'px';
+            }
+            // fallback: any positive height number sent from widget
+            if (typeof e.data === 'number' && e.data > 50) {
+                frame.style.height = e.data + 'px';
+            }
         });
 
+        // Fallback: poll iframe content height every 400ms
+        setInterval(() => {
+            try {
+                const h = frame.contentDocument?.documentElement?.scrollHeight;
+                if (h && h > 60) frame.style.height = h + 'px';
+            } catch (_) { /* cross-origin — ignore */ }
+        }, 400);
+
         function copySnippet() {
-            const text = '<script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"><\/script>';
-            navigator.clipboard.writeText(text);
+            navigator.clipboard.writeText('<script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"><\/script>');
             const btn = document.querySelector('.copy-btn');
-            btn.textContent = '✅ تم النسخ';
+            btn.textContent = '✅ تم';
             setTimeout(() => btn.textContent = 'نسخ', 2000);
         }
     </script>
