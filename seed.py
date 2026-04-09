@@ -41,6 +41,8 @@ def seed():
 
         domain = ClientDomain(site_id=site.site_id, domain_url="http://localhost")
         db.add(domain)
+        domain_prod = ClientDomain(site_id=site.site_id, domain_url="https://arabcaptcha.onrender.com")
+        db.add(domain_prod)
 
         # ── 2. Reference words (correct text known) ───────────────────────────
         ref_words_data = [
@@ -77,5 +79,30 @@ def seed():
         db.close()
 
 
+def ensure_prod_domain():
+    """يضمن وجود الـ domain السحابي في القاعدة حتى لو تم تشغيل seed مسبقاً."""
+    db = SessionLocal()
+    try:
+        prod_url = "https://arabcaptcha.onrender.com"
+        site = db.query(ClientSite).filter_by(site_name="Demo Site").first()
+        if not site:
+            return  # الـ seed لم يعمل بعد، سيعمل في السطر أدناه
+        exists = db.query(ClientDomain).filter_by(
+            site_id=site.site_id, domain_url=prod_url
+        ).first()
+        if not exists:
+            db.add(ClientDomain(site_id=site.site_id, domain_url=prod_url))
+            db.commit()
+            print(f"✅ Added production domain: {prod_url}")
+        else:
+            print(f"✅ Production domain already registered.")
+    except Exception as e:
+        db.rollback()
+        print(f"❌ ensure_prod_domain failed: {e}")
+    finally:
+        db.close()
+
+
 if __name__ == "__main__":
     seed()
+    ensure_prod_domain()
