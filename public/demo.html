@@ -290,7 +290,7 @@
         </div>
     </div>
 
-    <script src="arabcaptcha.js"></script>
+    <script src="/public/arabcaptcha.js"></script>
     <script>
         // Inject the widget into the container div
         window.addEventListener('load', () => {
@@ -300,7 +300,7 @@
                 site_key: "demo-site-key"
             });
             const iframe = document.createElement('iframe');
-            iframe.src = `https://arabcaptcha.onrender.com/public/widget.html?${params.toString()}`;
+            iframe.src = `/public/widget.html?${params.toString()}`;
             iframe.width = '100%';
             iframe.style.height = '60px';
             iframe.style.border = 'none';
