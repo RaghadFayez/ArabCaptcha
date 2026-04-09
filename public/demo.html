@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ArabCaptcha — Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --accent: #4f46e5;
+            --accent-light: #6366f1;
+            --bg: #0f0e17;
+            --surface: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #fffffe;
+            --muted: #a7a9be;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            font-family: 'Tajawal', sans-serif;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ── Header ── */
+        header {
+            width: 100%;
+            padding: 1.2rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-badge {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--accent), #818cf8);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        header h1 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            margin-right: auto;
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: 999px;
+            padding: 0.2rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+        }
+
+        .hero h2 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .hero h2 span {
+            background: linear-gradient(90deg, #6366f1, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1.1rem;
+            max-width: 480px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        /* ── Demo card ── */
+        .demo-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: min(480px, 90vw);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            margin-bottom: 1rem;
+        }
+
+        .demo-card-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Widget iframe ── */
+        .widget-wrapper {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .widget-wrapper iframe {
+            width: 100%;
+            height: 60px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            transition: height 0.3s ease;
+        }
+
+        /* ── Code snippet ── */
+        .snippet-section {
+            width: min(480px, 90vw);
+            margin-bottom: 4rem;
+        }
+
+        .snippet-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .snippet {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            color: #a78bfa;
+            line-height: 1.7;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.6rem;
+            left: 0.6rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 8px;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        /* ── Features grid ── */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            width: min(480px, 90vw);
+            margin-bottom: 4rem;
+        }
+
+        .feat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .feat-icon {
+            font-size: 1.6rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .feat-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .feat-sub {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 0.2rem;
+        }
+
+        /* ── Glow background ── */
+        .glow {
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header,
+        .hero,
+        .demo-card,
+        .snippet-section,
+        .features {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glow"></div>
+
+    <header>
+        <div class="logo-badge">🔐</div>
+        <h1>ArabCaptcha</h1>
+        <span class="badge">Live Demo</span>
+    </header>
+
+    <section class="hero">
+        <h2>نظام كابتشا <span>عربي ذكي</span></h2>
+        <p>أداة تحقق مبنية على الذكاء الاصطناعي، تكتشف البوتات من خلال تحليل سلوك المستخدم تلقائياً.</p>
+    </section>
+
+    <div class="demo-card">
+        <div class="demo-card-label">🧪 جرّب الودجت مباشرة</div>
+        <div class="widget-wrapper" id="arabcaptcha-widget"></div>
+    </div>
+
+    <div class="snippet-section">
+        <div class="snippet-label">📦 أضف الودجت لأي موقع بسطر واحد:</div>
+        <div class="snippet" id="snippet-box">
+            <button class="copy-btn" onclick="copySnippet()">نسخ</button>
+            &lt;script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"&gt;&lt;/script&gt;
+        </div>
+    </div>
+
+    <div class="features">
+        <div class="feat">
+            <div class="feat-icon">🤖</div>
+            <div class="feat-title">كشف البوت</div>
+            <div class="feat-sub">تحليل سلوكي فوري</div>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">🌍</div>
+            <div class="feat-title">عربي أصيل</div>
+            <div class="feat-sub">ألغاز بالخط العربي</div>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">⚡</div>
+            <div class="feat-title">API مفتوحة</div>
+            <div class="feat-sub">قابلة للدمج بأي موقع</div>
+        </div>
+    </div>
+
+    <script src="arabcaptcha.js"></script>
+    <script>
+        // Inject the widget into the container div
+        window.addEventListener('load', () => {
+            const container = document.getElementById('arabcaptcha-widget');
+            const params = new URLSearchParams({
+                domain: window.location.origin,
+                site_key: "demo-site-key"
+            });
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://arabcaptcha.onrender.com/public/widget.html?${params.toString()}`;
+            iframe.width = '100%';
+            iframe.style.height = '60px';
+            iframe.style.border = 'none';
+            iframe.style.borderRadius = '12px';
+            iframe.style.transition = 'height 0.3s ease';
+            container.appendChild(iframe);
+
+            // Listen for height change messages from widget
+            window.addEventListener('message', (e) => {
+                if (e.data && e.data.type === 'arabcaptcha:resize') {
+                    iframe.style.height = e.data.height + 'px';
+                }
+            });
+        });
+
+        function copySnippet() {
+            const text = '<script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"><\/script>';
+            navigator.clipboard.writeText(text);
+            const btn = document.querySelector('.copy-btn');
+            btn.textContent = '✅ تم النسخ';
+            setTimeout(() => btn.textContent = 'نسخ', 2000);
+        }
+    </script>
+</body>
+
+</html>

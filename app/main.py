@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import os
 
 from app.routers import session, challenge, solve, ocr, admin
@@ -38,4 +39,7 @@ app.include_router(admin.router)
 
 @app.get("/")
 def read_root():
+    demo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "demo.html")
+    if os.path.isfile(demo_path):
+        return FileResponse(demo_path, media_type="text/html")
     return {"message": "Welcome to the ArabCaptcha API"}
