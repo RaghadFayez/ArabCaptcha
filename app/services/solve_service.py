@@ -20,6 +20,7 @@ from app.db.models import (
 from app.utils.text_normalizer import normalize_arabic, texts_match
 from app.services.consensus_service import update_consensus
 from app.utils.bot_scorer import calculate_bot_score
+from app.core.config import settings
 
 
 def solve_challenge(
@@ -101,6 +102,11 @@ def solve_challenge(
         session = db.query(SiteSession).filter(SiteSession.session_id == challenge.session_id).first()
         if session:
             session.bot_score_final = current_bot_score
+
+        # Hard Reject: Fail the challenge immediately if the final score indicates obvious bot behavior
+        if current_bot_score >= settings.HIGH_RISK_THRESHOLD:
+            ref_correct = False
+            attempt.passed = False
 
     # ── If reference answer is correct → Trust Gate passed ───────────────
     token = None
