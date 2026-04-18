@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # Scores below LOW_RISK_THRESHOLD → Easy CAPTCHA
     # Scores between LOW and HIGH    → Medium CAPTCHA
     # Scores above HIGH_RISK_THRESHOLD → Hard/Rejected CAPTCHA
-    LOW_RISK_THRESHOLD: int = 30
+    LOW_RISK_THRESHOLD: int = 25
     HIGH_RISK_THRESHOLD: int = 70
 
     # ── Bot Score Signal Weights ──────────────────────────────────────────────
@@ -35,11 +35,13 @@ class Settings(BaseSettings):
     # Increase a weight to be stricter about that signal.
     WEIGHT_FAST_SUBMIT: int = 35      # Submitted in < 800ms
     WEIGHT_PASTE_USED: int = 25       # Answer was pasted, not typed
-    WEIGHT_NO_MOUSE: int = 15         # Zero mouse moves AND zero scrolls
-    WEIGHT_WEBDRIVER: int = 40        # Browser is controlled by automation (Selenium, etc.)
+    WEIGHT_NO_MOUSE: int = 25         # Zero mouse moves AND zero scrolls
+    WEIGHT_WEBDRIVER: int = 90        # Browser is controlled by automation (Selenium, etc.)
     WEIGHT_FAST_FIRST_INTERACTION: int = 15  # First keystroke/click in < 150ms
     WEIGHT_FOCUS_BLUR: int = 10       # Switched tabs > 3 times
     WEIGHT_TOO_MANY_ATTEMPTS: int = 15  # Failed the challenge >= 3 times
+    WEIGHT_KEYBOARD_ONLY: int = 20
+    WEIGHT_FAST_START: int = 20
 
     # ── Consensus (Crowdsourcing) Settings ───────────────────────────────────
     # Minimum number of trusted votes before we evaluate a low-confidence word.

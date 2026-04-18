@@ -199,13 +199,27 @@
             <iframe id="captchaFrame" class="captcha-frame"
                 src="/public/widget.html?domain=https://arabcaptcha.onrender.com&site_key=demo" scrolling="no"
                 allowtransparency="true"></iframe>
+                
+            <!-- لوحة اختبار مستويات الصعوبة -->
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ddd; font-family: sans-serif; direction: rtl; text-align: right;">
+                <h4 style="margin: 0 0 10px 0; color: #222; font-size: 13px;">لوحة اختبار مستويات الصعوبة (للديمو فقط)</h4>
+                <div style="font-size: 12px; margin-bottom: 12px; color: #555;">
+                    <span style="display:inline-block; width: 100px;"><strong>درجة الخطورة:</strong></span> <span id="demoScore" style="color:#b03a2e; font-weight:bold;">0</span> / 100 <br>
+                    <span style="display:inline-block; width: 100px;"><strong>الصعوبة:</strong></span> <span id="demoDiff" style="color:#1e7e34; font-weight:bold;">طبيعي (سهل)</span>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button style="border: 1px solid #1e7e34; background: transparent; color: #1e7e34; cursor: pointer; padding: 6px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; flex: 1;" onclick="simulateInWidget('easy')">سلوك طبيعي (سهل)</button>
+                    <button style="border: 1px solid #d39e00; background: transparent; color: #d39e00; cursor: pointer; padding: 6px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; flex: 1;" onclick="simulateInWidget('medium')">سلوك مريب (متوسط)</button>
+                    <button style="border: 1px solid #b03a2e; background: transparent; color: #b03a2e; cursor: pointer; padding: 6px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; flex: 1;" onclick="simulateInWidget('hard')">نشاط آلي (صعب)</button>
+                </div>
+            </div>
         </div>
 
         <div class="card">
             <div class="snippet-label">📦 أضف الكابتشا لأي موقع بسطر واحد:</div>
             <div class="snippet">
                 <button class="copy-btn" onclick="copySnippet()">نسخ</button>
-                &lt;script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"&gt;&lt;/script&gt;
+                &lt;script src="/public/arabcaptcha.js"&gt;&lt;/script&gt;
             </div>
         </div>
 
@@ -235,15 +249,30 @@
         // Expand iframe when widget opens challenge (page 2 is taller)
         window.addEventListener('message', (e) => {
             if (!e.data) return;
-            // arabcaptcha resize event
+            // arabcaptcha events
             if (e.data.type === 'arabcaptcha:resize' && e.data.height) {
                 frame.style.height = e.data.height + 'px';
+            }
+            if (e.data.type === 'ARABCAPTCHA_RESIZE' && e.data.height) {
+                frame.style.height = e.data.height + 'px';
+            }
+            if (e.data.type === 'ARABCAPTCHA_DEBUG_SCORE') {
+                document.getElementById('demoScore').textContent = e.data.score;
+            }
+            if (e.data.type === 'ARABCAPTCHA_DEBUG_DIFF') {
+                const diffEl = document.getElementById('demoDiff');
+                diffEl.textContent = e.data.diffText;
+                diffEl.style.color = e.data.color;
             }
             // fallback: any positive height number sent from widget
             if (typeof e.data === 'number' && e.data > 50) {
                 frame.style.height = e.data + 'px';
             }
         });
+
+        function simulateInWidget(level) {
+            frame.contentWindow.postMessage({ type: 'SIMULATE_BEHAVIOR', level: level }, '*');
+        }
 
         // Fallback: poll iframe content height every 400ms
         setInterval(() => {
@@ -254,7 +283,7 @@
         }, 400);
 
         function copySnippet() {
-            navigator.clipboard.writeText('<script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"><\/script>');
+            navigator.clipboard.writeText('<script src="http://127.0.0.1:8000/public/arabcaptcha.js"><\/script>');
             const btn = document.querySelector('.copy-btn');
             btn.textContent = '✅ تم';
             setTimeout(() => btn.textContent = 'نسخ', 2000);

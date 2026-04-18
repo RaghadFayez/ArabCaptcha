@@ -1,9 +1,14 @@
-const BACKEND_BASE_URL = "https://arabcaptcha.onrender.com";
+const BACKEND_BASE_URL = window.location.origin;
 
 let sessionId = null;
 let challengeId = null;
 let verifiedToken = null;
 let challengeStartedAt = null;
+
+// ── Passive Tracking (from page load, before Start) ─────────────────────
+const _pageLoadTime = performance.now();
+let _hoverBeforeStart = false;
+let _hadAnyMouseMove = false;
 
 // ── Behavioral Tracking ──────────────────────────────────────────────
 let behavioralData = {
@@ -14,7 +19,10 @@ let behavioralData = {
   webdriver: navigator.webdriver || false,
   first_interaction_ms: null,
   focus_blur_count: 0,
-  failed_attempts: 0
+  failed_attempts: 0,
+  time_to_start_ms: null,
+  hover_before_start: false,
+  keyboard_only: false,
 };
 
 function recordFirstInteraction() {
@@ -23,10 +31,21 @@ function recordFirstInteraction() {
   }
 }
 
-window.addEventListener("mousemove", () => behavioralData.mouse_moves++);
+window.addEventListener("mousemove", () => {
+  behavioralData.mouse_moves++;
+  _hadAnyMouseMove = true;
+  if (!sessionId) {
+    _hoverBeforeStart = true;
+  }
+});
 window.addEventListener("scroll", () => behavioralData.scrolls++);
 window.addEventListener("blur", () => behavioralData.focus_blur_count++);
-window.addEventListener("keydown", recordFirstInteraction);
+window.addEventListener("keydown", (e) => {
+  recordFirstInteraction();
+  if (!_hadAnyMouseMove) {
+    behavioralData.keyboard_only = true;
+  }
+});
 window.addEventListener("click", () => {
   behavioralData.click_count++;
   recordFirstInteraction();
@@ -53,27 +72,65 @@ const captchaStatus = document.getElementById("captchaStatus");
 const verifyBtn = document.getElementById("verifyCaptchaBtn");
 const refreshBtn = document.getElementById("refreshCaptcha");
 
-// -- لوحة الشرح الخاصة بالمطور --
-const debugScore = document.getElementById("debugScore");
-const debugDiff = document.getElementById("debugDiff");
-const debugBotBtn = document.getElementById("debugBotBtn");
+// -- استقبال أوامر المحاكاة من الديمو الخارجي --
+window.addEventListener('message', async (e) => {
+  if (e.data && e.data.type === 'SIMULATE_BEHAVIOR') {
+    await simulateBehavior(e.data.level);
+  }
+});
 
-if (debugBotBtn) {
-  debugBotBtn.addEventListener("click", async () => {
-    // تزييف السلوكيات لتبدو كبوت آلي بنسبة 100%
+async function simulateBehavior(level) {
+  if (level === 'easy') {
+    behavioralData.mouse_moves = 15;
+    behavioralData.scrolls = 2;
+    behavioralData.paste_used = false;
+    behavioralData.webdriver = false;
+    behavioralData.first_interaction_ms = 1200;
+    behavioralData.failed_attempts = 0;
+    behavioralData.keyboard_only = false;
+    behavioralData.time_to_start_ms = 3500;
+    behavioralData.hover_before_start = true;
+    captchaStatus.textContent = "محاكاة: سلوك طبيعي...";
+    captchaStatus.style.color = "#1e7e34";
+  } else if (level === 'medium') {
+    behavioralData.mouse_moves = 5;
+    behavioralData.scrolls = 0;
+    behavioralData.paste_used = true; // +25 points
+    behavioralData.webdriver = false;
+    behavioralData.first_interaction_ms = 100; // +15 points
+    behavioralData.failed_attempts = 0;
+    behavioralData.keyboard_only = false;
+    behavioralData.time_to_start_ms = 1500;
+    behavioralData.hover_before_start = false;
+    captchaStatus.textContent = "محاكاة: سلوك مريب...";
+    captchaStatus.style.color = "#d39e00";
+  } else if (level === 'hard') {
     behavioralData.mouse_moves = 0;
     behavioralData.scrolls = 0;
     behavioralData.paste_used = true;
-    behavioralData.webdriver = true;
-    behavioralData.first_interaction_ms = 40; // استجابة سريعة جداً كالبوت
+    behavioralData.webdriver = true; // +90 points (Hard Cap)
+    behavioralData.first_interaction_ms = 40;
     behavioralData.failed_attempts = 5;
-
-    // إجبار النظام على بدء جلسة جديدة بالبيانات المريبة لرؤية النتيجة فوراً
-    sessionId = null;
-    captchaStatus.textContent = "🤖 جاري المحاكاة...";
-    captchaStatus.style.color = "#0056b3";
-    await loadChallenge();
-  });
+    behavioralData.keyboard_only = true;
+    behavioralData.time_to_start_ms = 200;
+    behavioralData.hover_before_start = false;
+    captchaStatus.textContent = "محاكاة: نشاط آلي...";
+    captchaStatus.style.color = "#b03a2e";
+  }
+  
+  // إجبار النظام على بدء جلسة جديدة بالبيانات المحددة
+  sessionId = null;
+  verifyBtn.disabled = false;
+  refAnswerInput.disabled = false;
+  lowConfAnswerInput.disabled = false;
+  isLockedOut = false;
+  
+  if (cooldownTimer) {
+    clearInterval(cooldownTimer);
+    cooldownTimer = null;
+  }
+  
+  await loadChallenge();
 }
 
 function notifyParentHeight() {
@@ -110,10 +167,7 @@ async function createSession() {
   const data = await response.json();
   sessionId = data.session_id;
 
-  // إظهار النقاط في واجهة التطوير
-  if (debugScore) {
-    debugScore.textContent = data.bot_score || 0;
-  }
+  window.parent.postMessage({ type: 'ARABCAPTCHA_DEBUG_SCORE', score: data.bot_score || 0 }, '*');
 
   return data;
 }
@@ -161,19 +215,19 @@ async function loadChallenge(keepStatus = false) {
     lowConfImage.style.filter = "contrast(200%) grayscale(100%) blur(1px)";
     refImage.style.transform = "rotate(-3deg) scale(0.95)";
     lowConfImage.style.transform = "rotate(3deg) scale(0.95)";
-    if (debugDiff) debugDiff.textContent = "صعب جداً (Hard - Bot!)";
+    window.parent.postMessage({ type: 'ARABCAPTCHA_DEBUG_DIFF', diffText: "عالي الخطورة (صعب)", color: "#b03a2e" }, '*');
   } else if (data.difficulty === "medium") {
     refImage.style.filter = "contrast(150%) blur(0.5px)";
     lowConfImage.style.filter = "contrast(150%) blur(0.5px)";
     refImage.style.transform = "none";
     lowConfImage.style.transform = "none";
-    if (debugDiff) debugDiff.textContent = "متوسط (Medium)";
+    window.parent.postMessage({ type: 'ARABCAPTCHA_DEBUG_DIFF', diffText: "متوسط", color: "#d39e00" }, '*');
   } else {
     refImage.style.filter = "none";
     lowConfImage.style.filter = "none";
     refImage.style.transform = "none";
     lowConfImage.style.transform = "none";
-    if (debugDiff) debugDiff.textContent = "عادي للآدميين (Easy)";
+    window.parent.postMessage({ type: 'ARABCAPTCHA_DEBUG_DIFF', diffText: "طبيعي (سهل)", color: "#1e7e34" }, '*');
   }
 
   challengeStartedAt = performance.now();
@@ -226,6 +280,9 @@ function startCooldown() {
 }
 
 startBtn.addEventListener("click", async () => {
+  behavioralData.time_to_start_ms = Math.round(performance.now() - _pageLoadTime);
+  behavioralData.hover_before_start = _hoverBeforeStart;
+
   capPage1.classList.add("hidden");
   capPage2.classList.remove("hidden");
   notifyParentHeight();

@@ -11,16 +11,19 @@ from app.core.config import settings
 def calculate_bot_score(signals_json: str | None) -> float:
     """
     Analyze behavior signals and return a bot score (0–100).
+    Higher = more suspicious. 100 = definitely a bot.
 
     Expected signals_json keys:
-      - submit_time_ms: int      (time from page load to form submit)
+      - submit_time_ms: int       (time from challenge load to form submit)
       - paste_used: bool          (user pasted the answer)
       - mouse_moves: int          (number of mouse move events)
-      - scroll_events: int        (number of scroll events)
+      - scrolls: int              (number of scroll events)
       - webdriver: bool           (navigator.webdriver flag)
       - first_interaction_ms: int (time to first keystroke/click)
       - focus_blur_count: int     (number of tab switches)
       - failed_attempts: int      (previous failed attempts count)
+      - keyboard_only: bool       (typed but zero mouse moves)
+      - time_to_start_ms: int     (ms from page load to clicking Start)
     """
     if not signals_json:
         return 0.0
@@ -30,13 +33,23 @@ def calculate_bot_score(signals_json: str | None) -> float:
     except (json.JSONDecodeError, TypeError):
         return 0.0
 
+    # ── Webdriver Hard Cap ────────────────────────────────────────────────
+    # Automation-controlled browser = near-certain bot. Score starts at 90.
+    if signals.get("webdriver", False):
+        extra = 0.0
+        if signals.get("paste_used", False):
+            extra += 5.0
+        if signals.get("submit_time_ms", 5000) < 500:
+            extra += 5.0
+        return min(90.0 + extra, 100.0)
+
     score = 0.0
 
-    # Fast submit (< 800ms)
+    # Fast submit (< 500ms)
     submit_time = signals.get("submit_time_ms")
     if submit_time is None:
         submit_time = 5000
-    if submit_time < 800:
+    if submit_time < 500:
         score += settings.WEIGHT_FAST_SUBMIT
 
     # Paste used
@@ -52,10 +65,6 @@ def calculate_bot_score(signals_json: str | None) -> float:
         scrolls = 1
     if mouse_moves == 0 and scrolls == 0:
         score += settings.WEIGHT_NO_MOUSE
-
-    # Webdriver detected
-    if signals.get("webdriver", False):
-        score += settings.WEIGHT_WEBDRIVER
 
     # First interaction too fast (< 150ms)
     first_interaction = signals.get("first_interaction_ms")
@@ -77,6 +86,15 @@ def calculate_bot_score(signals_json: str | None) -> float:
         failed_attempts = 0
     if failed_attempts >= 3:
         score += settings.WEIGHT_TOO_MANY_ATTEMPTS
+
+    # Keyboard-only interaction (headless pattern)
+    if signals.get("keyboard_only", False):
+        score += settings.WEIGHT_KEYBOARD_ONLY
+
+    # Clicked Start too fast from page load (< 1000ms)
+    time_to_start = signals.get("time_to_start_ms")
+    if time_to_start is not None and time_to_start < 1000:
+        score += settings.WEIGHT_FAST_START
 
     return min(score, 100.0)
 
