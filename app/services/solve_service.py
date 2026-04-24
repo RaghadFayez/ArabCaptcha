@@ -124,6 +124,11 @@ def solve_challenge(
         challenge.status = "passed"
         challenge.is_human_verified = True
 
+        # Close the session to prevent reuse and secure the final bot score
+        session_to_close = db.query(SiteSession).filter(SiteSession.session_id == challenge.session_id).first()
+        if session_to_close:
+            session_to_close.status = "completed"
+
         # Generate verification token
         token = str(uuid.uuid4())
 
