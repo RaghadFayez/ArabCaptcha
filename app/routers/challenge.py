@@ -51,17 +51,16 @@ def fetch_challenge(challenge_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/{challenge_id}/image/{word_id}")
-def serve_distorted_image(challenge_id: str, word_id: int, db: Session = Depends(get_db)):
+def serve_distorted_image(challenge_id: str, word_id: int, difficulty: str | None = None, db: Session = Depends(get_db)):
     """
     Serve a word image with difficulty-based visual distortion applied on-the-fly.
-
-    The distortion level is determined by the challenge's difficulty:
-      - easy:   subtle wave + few dots/lines
-      - medium: moderate wave + more dots/lines
-      - hard:   strong wave + many dots/lines + blur
+    'difficulty' can be passed as a query param for admin previews, 
+    otherwise it's fetched from the challenge record.
     """
-    # Fetch challenge to get difficulty
-    challenge = get_challenge(challenge_id=challenge_id, db=db)
+    # Use provided difficulty or fetch from challenge
+    if not difficulty:
+        challenge = get_challenge(challenge_id=challenge_id, db=db)
+        difficulty = challenge.difficulty
 
     # Get raw image path
     raw_path = get_word_image_path(word_id=word_id, db=db)
@@ -80,6 +79,6 @@ def serve_distorted_image(challenge_id: str, word_id: int, db: Session = Depends
         image_bytes = f.read()
 
     # Apply difficulty-based distortion
-    distorted_bytes = apply_difficulty_filters(image_bytes, challenge.difficulty)
+    distorted_bytes = apply_difficulty_filters(image_bytes, difficulty)
 
     return Response(content=distorted_bytes, media_type="image/jpeg")

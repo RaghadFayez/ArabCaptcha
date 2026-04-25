@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArabCaptcha | إدارة الكلمات</title>
+    <link rel="stylesheet" href="admin_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .tabs { border-bottom: 1px solid var(--border); margin-bottom: 24px; display: flex; gap: 20px; }
+        .tab { padding: 12px 20px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; color: var(--text-muted); }
+        .tab.active { border-color: var(--primary); color: var(--primary); font-weight: 600; }
+        
+        /* Modal Style */
+        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background: rgba(0,0,0,0.5); align-items:center; justify-content:center; }
+        .modal-content { background:white; padding:32px; border-radius:16px; max-width:600px; width:90%; position:relative; }
+        .close-modal { position:absolute; left:16px; top:16px; cursor:pointer; font-size:20px; }
+        .preview-grid { display:grid; gap:16px; margin-top:20px; }
+        .preview-item { text-align:center; }
+        .preview-item img { width:100%; border:1px solid var(--border); border-radius:8px; background:#f0f0f0; }
+        .preview-item label { display:block; margin-top:4px; font-size:12px; font-weight:bold; }
+    </style>
+</head>
+<body>
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">×</span>
+            <h3>🔍 معاينة التشويش</h3>
+            <p>كيف تظهر هذه الكلمة للمستخدمين بمختلف مستويات الصعوبة:</p>
+            <div class="preview-grid" id="previewGrid"></div>
+        </div>
+    </div>
+
+    <aside class="sidebar">
+        <h2>🛡️ ArabCaptcha Admin</h2>
+        <nav>
+            <a href="admin_dashboard.html">📊 لوحة الإحصائيات</a>
+            <a href="admin_words.html" class="active">📝 إدارة الكلمات</a>
+            <a href="demo.html">🧪 تجربة النظام</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <h1>مكتبة الكلمات</h1>
+            <p style="color: var(--text-muted)">إدارة الكلمات المرجعية ومتابعة رقمنة الكلمات غير الواضحة</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('reference')">الكلمات المرجعية (Anchor)</div>
+            <div class="tab" onclick="showTab('low_confidence')">كلمات التعاون الجماعي (Crowdsource)</div>
+        </div>
+
+        <section id="referenceSection" class="words-grid">
+            <!-- Reference words will load here -->
+        </section>
+
+        <section id="lowConfidenceSection" class="words-grid" style="display:none">
+            <!-- Low confidence words will load here -->
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = '/admin/words';
+
+        async function loadWords() {
+            try {
+                const res = await fetch(API_BASE);
+                const words = await res.json();
+                
+                renderReference(words.filter(w => w.word_type === 'reference'));
+                renderLowConf(words.filter(w => w.word_type === 'low_confidence'));
+            } catch (err) { console.error(err); }
+        }
+
+        function renderReference(words) {
+            const container = document.getElementById('referenceSection');
+            container.innerHTML = words.map(w => `
+                <div class="word-card">
+                    <img src="${w.image_path}" alt="Word Image">
+                    <div class="word-info">
+                        <h4>${w.correct_text}</h4>
+                        <p>ID: ${w.word_id} | النوع: مرجعي</p>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end">
+                        <label class="switch">
+                            <input type="checkbox" ${w.active ? 'checked' : ''} onchange="toggleActive(${w.word_id}, this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                        <button class="badge" style="border:1px solid #ccc; background:#fff; cursor:pointer" onclick="showPreview(${w.word_id})">معاينة 👁️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLowConf(words) {
+            const container = document.getElementById('lowConfidenceSection');
+            container.innerHTML = words.map(w => `
+                <div class="word-card">
+                    <img src="${w.image_path}" alt="Word Image">
+                    <div class="word-info">
+                        <h4>${w.verified_text || 'لم ترقم بعد'}</h4>
+                        <p>ID: ${w.word_id} | الأصوات: ${w.total_votes}</p>
+                        <p>الحالة: <span class="badge badge-${w.status}">${w.status}</span></p>
+                    </div>
+                    <button class="badge" style="border:1px solid #ccc; background:#fff; cursor:pointer" onclick="showPreview(${w.word_id})">معاينة 👁️</button>
+                </div>
+            `).join('');
+        }
+
+        async function toggleActive(id, active) {
+            try {
+                await fetch(`${API_BASE}/${id}/activate?active=${active}`, { method: 'PATCH' });
+            } catch (err) { alert('فشل التعديل'); }
+        }
+
+        function showPreview(id) {
+            const grid = document.getElementById('previewGrid');
+            grid.innerHTML = ['easy', 'medium', 'hard'].map(level => `
+                <div class="preview-item">
+                    <img src="/challenges/PREVIEW_${Math.random().toString(36).substr(2,9)}/image/${id}?difficulty=${level}" alt="${level}">
+                    <label>${level.toUpperCase()}</label>
+                </div>
+            `).join('');
+            document.getElementById('previewModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('previewModal')) closeModal();
+        }
+
+        function showTab(type) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (type === 'reference') {
+                document.getElementById('referenceSection').style.display = 'grid';
+                document.getElementById('lowConfidenceSection').style.display = 'none';
+            } else {
+                document.getElementById('referenceSection').style.display = 'none';
+                document.getElementById('lowConfidenceSection').style.display = 'grid';
+            }
+        }
+
+        loadWords();
+    </script>
+</body>
+</html>

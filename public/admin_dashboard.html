@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArabCaptcha | لوحة التحكم</title>
+    <link rel="stylesheet" href="admin_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>🛡️ ArabCaptcha Admin</h2>
+        <nav>
+            <a href="admin_dashboard.html" class="active">📊 لوحة الإحصائيات</a>
+            <a href="admin_words.html">📝 إدارة الكلمات</a>
+            <a href="demo.html">🧪 تجربة النظام</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <h1>نظرة عامة على النظام</h1>
+            <p style="color: var(--text-muted)">تقرير أداء الكابتشا واكتشاف البوتات في الوقت الفعلي</p>
+        </header>
+
+        <section class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="label">إجمالي الجلسات</div>
+                <div class="value" id="statTotalSessions">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">إجمالي التحديات</div>
+                <div class="value" id="statTotalChallenges">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">نسبة اكتشاف البوتات</div>
+                <div class="value" id="statBotRate">-%</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">نسبة تخطي التحدي</div>
+                <div class="value" id="statSolveRate">-%</div>
+            </div>
+        </section>
+
+        <section class="table-container">
+            <h3>آخر 10 تحديات</h3>
+            <table id="challengesTable">
+                <thead>
+                    <tr>
+                        <th>ID التحدي</th>
+                        <th>التوقيت</th>
+                        <th>الصعوبة</th>
+                        <th>الحالة</th>
+                        <th>نتيجة البوت</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <section class="table-container">
+            <h3>آخر 10 جلسات (مراقبة المخاطر)</h3>
+            <table id="sessionsTable">
+                <thead>
+                    <tr>
+                        <th>ID الجلسة</th>
+                        <th>البداية</th>
+                        <th>التقييم الابتدائي</th>
+                        <th>التقييم النهائي</th>
+                        <th>المستوى</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = '/admin';
+
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/stats`);
+                const data = await res.json();
+                document.getElementById('statTotalSessions').textContent = data.total_sessions;
+                document.getElementById('statTotalChallenges').textContent = data.total_challenges;
+                document.getElementById('statBotRate').textContent = data.bot_rate + '%';
+                document.getElementById('statSolveRate').textContent = data.solve_rate + '%';
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadRecentChallenges() {
+            try {
+                const res = await fetch(`${API_BASE}/recent-challenges`);
+                const data = await res.json();
+                const tbody = document.querySelector('#challengesTable tbody');
+                tbody.innerHTML = data.slice(0, 10).map(c => `
+                    <tr>
+                        <td style="font-family: monospace;">${c.challenge_id.substring(0, 8)}...</td>
+                        <td>${new Date(c.created_at).toLocaleString('ar-EG')}</td>
+                        <td><span class="badge">${c.difficulty.toUpperCase()}</span></td>
+                        <td><span class="badge badge-${c.status}">${translateStatus(c.status)}</span></td>
+                        <td>${c.bot_score || 0}</td>
+                    </tr>
+                `).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadRecentSessions() {
+            try {
+                const res = await fetch(`${API_BASE}/recent-sessions`);
+                const data = await res.json();
+                const tbody = document.querySelector('#sessionsTable tbody');
+                tbody.innerHTML = data.slice(0, 10).map(s => `
+                    <tr>
+                        <td style="font-family: monospace;">${s.session_id.substring(0, 8)}...</td>
+                        <td>${new Date(s.session_created_at).toLocaleString('ar-EG')}</td>
+                        <td>${s.bot_score_initial || 0}</td>
+                        <td>${s.bot_score_final || 0}</td>
+                        <td><span class="badge badge-${s.risk_level}">${s.risk_level || 'UNKNOWN'}</span></td>
+                        <td><span class="badge badge-pending">${s.status}</span></td>
+                    </tr>
+                `).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        function translateStatus(s) {
+            const m = { 'passed': 'ناجح', 'failed': 'فشل', 'pending': 'معلق', 'expired': 'منتهي' };
+            return m[s] || s;
+        }
+
+        loadStats();
+        loadRecentChallenges();
+        loadRecentSessions();
+        setInterval(loadStats, 10000);
+    </script>
+</body>
+</html>
