@@ -79,7 +79,10 @@ window.addEventListener('message', async (e) => {
   }
 });
 
+let isSimulating = false;
+
 async function simulateBehavior(level) {
+  isSimulating = true;
   if (level === 'easy') {
     behavioralData.mouse_moves = 15;
     behavioralData.scrolls = 2;
@@ -90,36 +93,45 @@ async function simulateBehavior(level) {
     behavioralData.keyboard_only = false;
     behavioralData.time_to_start_ms = 3500;
     behavioralData.hover_before_start = true;
+    behavioralData.submit_time_ms = 5500;
     captchaStatus.textContent = "محاكاة: سلوك طبيعي...";
     captchaStatus.style.color = "#1e7e34";
   } else if (level === 'medium') {
     behavioralData.mouse_moves = 5;
     behavioralData.scrolls = 0;
-    behavioralData.paste_used = true; // +25 points
+    behavioralData.paste_used = true;
     behavioralData.webdriver = false;
-    behavioralData.first_interaction_ms = 100; // +15 points
+    behavioralData.first_interaction_ms = 100;
     behavioralData.failed_attempts = 0;
     behavioralData.keyboard_only = false;
     behavioralData.time_to_start_ms = 1500;
     behavioralData.hover_before_start = false;
+    behavioralData.submit_time_ms = 800;
     captchaStatus.textContent = "محاكاة: سلوك مريب...";
     captchaStatus.style.color = "#d39e00";
   } else if (level === 'hard') {
     behavioralData.mouse_moves = 0;
     behavioralData.scrolls = 0;
     behavioralData.paste_used = true;
-    behavioralData.webdriver = true; // +90 points (Hard Cap)
+    behavioralData.webdriver = true;
     behavioralData.first_interaction_ms = 40;
     behavioralData.failed_attempts = 5;
     behavioralData.keyboard_only = true;
     behavioralData.time_to_start_ms = 200;
     behavioralData.hover_before_start = false;
+    behavioralData.submit_time_ms = 150;
     captchaStatus.textContent = "محاكاة: نشاط آلي...";
     captchaStatus.style.color = "#b03a2e";
   }
+
+  // إذا يوجد جلية فعالة، نكتفي بتعديل البيانات لإرسالها عند الضغط على "تحقق"
+  if (sessionId && challengeId) {
+    captchaStatus.textContent += " (سيتم تطبيقها عند التحقق)";
+    return;
+  }
   
-  // إجبار النظام على بدء جلسة جديدة بالبيانات المحددة
-  sessionId = null;
+  // إذا لم تبدأ الجلسة بعد، نبدأ جلسة جديدة بهذه البيانات (Initial Score)
+  sessionId = null; 
   verifyBtn.disabled = false;
   refAnswerInput.disabled = false;
   lowConfAnswerInput.disabled = false;
@@ -173,6 +185,7 @@ async function createSession() {
 }
 
 async function loadChallenge(keepStatus = false) {
+  isSimulating = false; 
   if (!keepStatus) {
     captchaStatus.textContent = "جاري التحميل...";
     captchaStatus.style.color = "rgba(0,0,0,0.65)";
@@ -323,7 +336,9 @@ verifyBtn.addEventListener("click", async () => {
 
   try {
     behavioralData.failed_attempts = failedAttempts;
-    behavioralData.submit_time_ms = responseTimeMs;
+    if (!isSimulating) {
+      behavioralData.submit_time_ms = responseTimeMs;
+    }
 
     const response = await fetch(`${BACKEND_BASE_URL}/challenges/${challengeId}/solve`, {
       method: "POST",
