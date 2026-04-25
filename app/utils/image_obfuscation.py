@@ -20,27 +20,27 @@ import numpy as np
 
 PARAMS = {
     "easy": {
-        "amplitude": 8,
-        "period": 100,
-        "num_lines": 2,
-        "num_dots": 100,
-        "noise_eps": 4,
+        "amplitude": 2,
+        "period": 30,
+        "num_lines": 1,
+        "num_dots": 50,
+        "noise_eps": 2,
         "blur": False,
     },
     "medium": {
-        "amplitude": 9,
-        "period": 80,
-        "num_lines": 5,
-        "num_dots": 400,
-        "noise_eps": 8,
+        "amplitude": 4,
+        "period": 25,
+        "num_lines": 2,
+        "num_dots": 100,
+        "noise_eps": 5,
         "blur": False,
     },
     "hard": {
-        "amplitude": 12,
-        "period": 60,
-        "num_lines": 7,
-        "num_dots": 550,
-        "noise_eps": 10,
+        "amplitude": 6,
+        "period": 20,
+        "num_lines": 4,
+        "num_dots": 200,
+        "noise_eps": 8,
         "blur": True,
     },
 }
@@ -114,9 +114,6 @@ def apply_difficulty_filters(image_bytes: bytes, difficulty: str) -> bytes:
     if image is None:
         # If decoding fails, return original bytes unchanged
         return image_bytes
-
-    # Resize for consistency (same as test.py)
-    image = cv2.resize(image, (400, 150))
 
     # Apply pipeline
     image = _wave_distortion(image, params["amplitude"], params["period"])
