@@ -209,24 +209,12 @@ async function loadChallenge(keepStatus = false) {
   refImage.src = getFullUrl(data.ref_image_url);
   lowConfImage.src = getFullUrl(data.low_conf_image_url);
 
-  // Apply Dynamic Difficulty CSS
+  // Difficulty is now handled purely server-side (Python OpenCV)
   if (data.difficulty === "hard") {
-    refImage.style.filter = "contrast(200%) grayscale(100%) blur(1px)";
-    lowConfImage.style.filter = "contrast(200%) grayscale(100%) blur(1px)";
-    refImage.style.transform = "rotate(-3deg) scale(0.95)";
-    lowConfImage.style.transform = "rotate(3deg) scale(0.95)";
     window.parent.postMessage({ type: 'ARABCAPTCHA_DEBUG_DIFF', diffText: "عالي الخطورة (صعب)", color: "#b03a2e" }, '*');
   } else if (data.difficulty === "medium") {
-    refImage.style.filter = "contrast(150%) blur(0.5px)";
-    lowConfImage.style.filter = "contrast(150%) blur(0.5px)";
-    refImage.style.transform = "none";
-    lowConfImage.style.transform = "none";
     window.parent.postMessage({ type: 'ARABCAPTCHA_DEBUG_DIFF', diffText: "متوسط", color: "#d39e00" }, '*');
   } else {
-    refImage.style.filter = "none";
-    lowConfImage.style.filter = "none";
-    refImage.style.transform = "none";
-    lowConfImage.style.transform = "none";
     window.parent.postMessage({ type: 'ARABCAPTCHA_DEBUG_DIFF', diffText: "طبيعي (سهل)", color: "#1e7e34" }, '*');
   }
 

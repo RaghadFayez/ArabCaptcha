@@ -1,57 +1,50 @@
 """
 utils/image_obfuscation.py
 
-Applies visual distortion filters to CAPTCHA word images
-based on the challenge's difficulty level (easy / medium / hard).
-
-The same three filters are applied to all levels;
-only the intensity parameters vary — creating a smooth,
-progressive difficulty curve that is imperceptible to humans
-at low levels but devastating to OCR models at high levels.
+Final production version for ArabCaptcha. 
+Handles difficulty purely on the server side using OpenCV.
 """
 import io
 import cv2
 import numpy as np
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Filter parameters per difficulty level
-# ─────────────────────────────────────────────────────────────────────────────
-
 PARAMS = {
     "easy": {
-        "amplitude": 8,
+        "amplitude": 6,
         "period": 100,
-        "num_lines": 2,
-        "num_dots": 100,
-        "noise_eps": 4,
+        "num_lines": 1,      # Subtle line to not look "plain"
+        "num_dots": 100,     # Table requirement
+        "noise_eps": 3,
+        "angle": -2,         # Subtle slant
         "blur": False,
     },
     "medium": {
         "amplitude": 9,
         "period": 80,
-        "num_lines": 5,
-        "num_dots": 400,
-        "noise_eps": 8,
+        "num_lines": 5,      # Table requirement
+        "num_dots": 400,     # Table requirement
+        "noise_eps": 6,
+        "angle": 3,          # Medium slant
         "blur": False,
     },
     "hard": {
-        "amplitude": 12,
+        "amplitude": 13,
         "period": 60,
-        "num_lines": 7,
-        "num_dots": 550,
-        "noise_eps": 10,
-        "blur": True,
+        "num_lines": 7,      # Table requirement
+        "num_dots": 550,     # Table requirement
+        "noise_eps": 9,
+        "angle": -5,         # Strong slant
+        "blur": True,        # Table requirement
     },
 }
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Individual filters
-# ─────────────────────────────────────────────────────────────────────────────
+def _rotate_image(image: np.ndarray, angle: float) -> np.ndarray:
+    """Rotate image by a small angle with white background."""
+    h, w = image.shape[:2]
+    M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
+    return cv2.warpAffine(image, M, (w, h), borderValue=(255, 255, 255))
 
 def _wave_distortion(image: np.ndarray, amplitude: int, period: int) -> np.ndarray:
-    """Shift each row horizontally by a sinusoidal amount."""
     rows = image.shape[0]
     distorted = np.zeros_like(image)
     for i in range(rows):
@@ -59,9 +52,7 @@ def _wave_distortion(image: np.ndarray, amplitude: int, period: int) -> np.ndarr
         distorted[i] = np.roll(image[i], shift, axis=0)
     return distorted
 
-
 def _add_lines(image: np.ndarray, num_lines: int) -> np.ndarray:
-    """Draw random diagonal lines across the image."""
     img = image.copy()
     h, w = img.shape[:2]
     for _ in range(num_lines):
@@ -71,9 +62,7 @@ def _add_lines(image: np.ndarray, num_lines: int) -> np.ndarray:
         cv2.line(img, (x1, y1), (x2, y2), color, 1)
     return img
 
-
 def _add_dots(image: np.ndarray, num_dots: int) -> np.ndarray:
-    """Scatter random colored pixels across the image."""
     img = image.copy()
     h, w = img.shape[:2]
     for _ in range(num_dots):
@@ -82,43 +71,23 @@ def _add_dots(image: np.ndarray, num_dots: int) -> np.ndarray:
         img[y, x] = np.random.randint(100, 220, 3)
     return img
 
-
 def _adversarial_noise(image: np.ndarray, epsilon: float) -> np.ndarray:
-    """Add Gaussian noise to subtly perturb pixel values."""
     noise = np.random.randn(*image.shape) * epsilon
     return np.clip(image.astype(np.float32) + noise, 0, 255).astype(np.uint8)
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Public API
-# ─────────────────────────────────────────────────────────────────────────────
-
 def apply_difficulty_filters(image_bytes: bytes, difficulty: str) -> bytes:
-    """
-    Load raw image bytes, apply the appropriate distortion pipeline
-    for the given difficulty level, and return the processed image as JPEG bytes.
-
-    Args:
-        image_bytes: Raw bytes of the original word image.
-        difficulty:  One of "easy" | "medium" | "hard".
-
-    Returns:
-        JPEG-encoded bytes of the distorted image.
-    """
     params = PARAMS.get(difficulty, PARAMS["easy"])
-
-    # Decode image from bytes
     nparr = np.frombuffer(image_bytes, np.uint8)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
     if image is None:
-        # If decoding fails, return original bytes unchanged
         return image_bytes
 
-    # Resize for consistency (same as test.py)
-    image = cv2.resize(image, (400, 150))
+    # High quality upscale to 400x150 for clarity
+    image = cv2.resize(image, (400, 150), interpolation=cv2.INTER_CUBIC)
 
-    # Apply pipeline
+    # Distortion pipeline
+    image = _rotate_image(image, params["angle"])
     image = _wave_distortion(image, params["amplitude"], params["period"])
     image = _add_lines(image, params["num_lines"])
     image = _add_dots(image, params["num_dots"])
@@ -126,9 +95,5 @@ def apply_difficulty_filters(image_bytes: bytes, difficulty: str) -> bytes:
     if params["blur"]:
         image = cv2.GaussianBlur(image, (3, 3), 0)
 
-    # Encode back to JPEG bytes
     success, buffer = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 90])
-    if not success:
-        return image_bytes
-
-    return buffer.tobytes()
+    return buffer.tobytes() if success else image_bytes
