@@ -83,7 +83,12 @@ def get_challenge(challenge_id: str, db: Session) -> Challenge:
     return challenge
 
 
-def get_image_url(word_id: int, db: Session) -> str:
-    """Get the image URL/path for a word."""
+def get_image_url(challenge_id: str, word_id: int) -> str:
+    """Return the dynamic image URL that applies difficulty-based distortion."""
+    return f"/challenges/{challenge_id}/image/{word_id}"
+
+
+def get_word_image_path(word_id: int, db: Session) -> str:
+    """Get the raw (undistorted) image file path for a word."""
     word = db.query(Word).filter(Word.word_id == word_id).first()
     return word.image_path if word else ""
