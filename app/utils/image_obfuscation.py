@@ -20,26 +20,26 @@ import numpy as np
 
 PARAMS = {
     "easy": {
-        "amplitude": 8,
-        "period": 100,
-        "num_lines": 2,
-        "num_dots": 100,
+        "amplitude": 5,      # تمايل خفيف
+        "period": 120,
+        "num_lines": 0,      # لا توجد خطوط حسب الجدول
+        "num_dots": 100,     # 100 نقطة
         "noise_eps": 4,
         "blur": False,
     },
     "medium": {
-        "amplitude": 9,
-        "period": 80,
-        "num_lines": 5,
-        "num_dots": 400,
+        "amplitude": 8,      # تمايل
+        "period": 100,
+        "num_lines": 5,      # 5 خطوط
+        "num_dots": 400,     # 400 نقطة
         "noise_eps": 8,
         "blur": False,
     },
     "hard": {
-        "amplitude": 12,
+        "amplitude": 12,     # تمايل (قوي)
         "period": 60,
-        "num_lines": 7,
-        "num_dots": 550,
+        "num_lines": 7,      # 7 خطوط
+        "num_dots": 550,     # 550 نقطة
         "noise_eps": 10,
         "blur": True,
     },
