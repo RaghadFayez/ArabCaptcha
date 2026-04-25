@@ -20,27 +20,30 @@ import numpy as np
 
 PARAMS = {
     "easy": {
-        "amplitude": 5,      # تمايل خفيف
-        "period": 120,
-        "num_lines": 0,      # لا توجد خطوط حسب الجدول
-        "num_dots": 100,     # 100 نقطة
+        "amplitude": 7,
+        "period": 100,
+        "num_lines": 2,      # أضفنا خطين عشان ما تطلع "سادة"
+        "num_dots": 150,
         "noise_eps": 4,
+        "angle": -3,         # ميلان خفيف
         "blur": False,
     },
     "medium": {
-        "amplitude": 8,      # تمايل
-        "period": 100,
-        "num_lines": 5,      # 5 خطوط
-        "num_dots": 400,     # 400 نقطة
+        "amplitude": 10,
+        "period": 80,
+        "num_lines": 5,
+        "num_dots": 400,
         "noise_eps": 8,
+        "angle": 4,          # ميلان متوسط
         "blur": False,
     },
     "hard": {
-        "amplitude": 12,     # تمايل (قوي)
+        "amplitude": 14,
         "period": 60,
-        "num_lines": 7,      # 7 خطوط
-        "num_dots": 550,     # 550 نقطة
+        "num_lines": 8,
+        "num_dots": 600,
         "noise_eps": 10,
+        "angle": -6,         # ميلان قوي
         "blur": True,
     },
 }
@@ -83,6 +86,14 @@ def _add_dots(image: np.ndarray, num_dots: int) -> np.ndarray:
     return img
 
 
+def _rotate_image(image: np.ndarray, angle: float) -> np.ndarray:
+    """Rotate image by a small angle with white background."""
+    h, w = image.shape[:2]
+    center = (w // 2, h // 2)
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    return cv2.warpAffine(image, M, (w, h), borderValue=(255, 255, 255))
+
+
 def _adversarial_noise(image: np.ndarray, epsilon: float) -> np.ndarray:
     """Add Gaussian noise to subtly perturb pixel values."""
     noise = np.random.randn(*image.shape) * epsilon
@@ -119,6 +130,7 @@ def apply_difficulty_filters(image_bytes: bytes, difficulty: str) -> bytes:
     image = cv2.resize(image, (400, 150))
 
     # Apply pipeline
+    image = _rotate_image(image, params["angle"])
     image = _wave_distortion(image, params["amplitude"], params["period"])
     image = _add_lines(image, params["num_lines"])
     image = _add_dots(image, params["num_dots"])
