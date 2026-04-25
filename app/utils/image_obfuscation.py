@@ -10,31 +10,31 @@ import numpy as np
 
 PARAMS = {
     "easy": {
-        "amplitude": 6,
+        "amplitude": 8,
         "period": 100,
-        "num_lines": 1,      # Subtle line to not look "plain"
-        "num_dots": 100,     # Table requirement
-        "noise_eps": 3,
-        "angle": -2,         # Subtle slant
+        "num_lines": 3,      
+        "num_dots": 200,     
+        "noise_eps": 4,
+        "angle": -4,         
         "blur": False,
     },
     "medium": {
-        "amplitude": 9,
+        "amplitude": 11,
         "period": 80,
-        "num_lines": 5,      # Table requirement
-        "num_dots": 400,     # Table requirement
-        "noise_eps": 6,
-        "angle": 3,          # Medium slant
+        "num_lines": 6,      
+        "num_dots": 450,     
+        "noise_eps": 7,
+        "angle": 5,          
         "blur": False,
     },
     "hard": {
-        "amplitude": 13,
+        "amplitude": 15,
         "period": 60,
-        "num_lines": 7,      # Table requirement
-        "num_dots": 550,     # Table requirement
-        "noise_eps": 9,
-        "angle": -5,         # Strong slant
-        "blur": True,        # Table requirement
+        "num_lines": 9,      
+        "num_dots": 600,     
+        "noise_eps": 10,
+        "angle": -7,         
+        "blur": True,        
     },
 }
 
