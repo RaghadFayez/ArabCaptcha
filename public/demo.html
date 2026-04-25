@@ -245,6 +245,10 @@
 
     <script>
         const frame = document.getElementById('captchaFrame');
+        
+        // Force refresh iframe with cache buster to avoid seeing old versions
+        const baseSrc = "/public/widget.html?domain=https://arabcaptcha.onrender.com&site_key=demo";
+        frame.src = baseSrc + "&v=" + Date.now();
 
         // Expand iframe when widget opens challenge (page 2 is taller)
         window.addEventListener('message', (e) => {
