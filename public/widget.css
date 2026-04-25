@@ -107,6 +107,8 @@ body {
 .cap-image-box {
   border: 1px dashed rgba(0, 0, 0, 0.15);
   border-radius: 12px;
+  padding: 8px;
+  background: rgba(242, 239, 233, 0.75);
   overflow: hidden;
 }
 
@@ -119,7 +121,10 @@ body {
 
 .cap-image-box img {
   width: 100%;
+  height: auto;
   display: block;
+  background: #fff;
+  border-radius: 8px;
 }
 
 .icon-btn {
