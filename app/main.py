@@ -1,10 +1,15 @@
-from fastapi import FastAPI
+import os
+import traceback
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
+from fastapi.responses import FileResponse, JSONResponse
+from app.db.session import engine, Base
 
 from app.routers import session, challenge, solve, ocr, admin
+
+# ── Create all tables (safe if they already exist) ───────────────────────
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="ArabCaptcha Backend API",
@@ -48,3 +53,10 @@ def read_root():
     if os.path.isfile(admin_path):
         return FileResponse(admin_path, media_type="text/html")
     return {"message": "Welcome to the ArabCaptcha API"}
+
+@app.exception_handler(Exception)
+async def debug_exception_handler(request: Request, exc: Exception):
+    tb = traceback.format_exception(type(exc), exc, exc.__traceback__)
+    tb_str = "".join(tb)
+    print(f"ERROR: {tb_str}", flush=True)
+    return JSONResponse(status_code=500, content={"detail": str(exc), "traceback": tb_str})
