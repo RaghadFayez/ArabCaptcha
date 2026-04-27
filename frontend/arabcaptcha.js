@@ -13,7 +13,7 @@ window.ArabCaptcha = {
     });
 
     const iframe = document.createElement("iframe");
-    iframe.src = `/frontend/widget.html?${params.toString()}`;
+    iframe.src = `https://arabcaptcha.onrender.com/frontend/widget.html?${params.toString()}`;
     iframe.width = "100%";
     iframe.height = "56";
     iframe.style.border = "0";
