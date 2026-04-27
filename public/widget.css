@@ -120,8 +120,9 @@ body {
 }
 
 .cap-image-composite img {
-  width: 100%; /* fit single stiched image */
-  max-height: 110px;
+  width: 92%; /* reduced to prevent any side cutoff */
+  margin: 0 auto; /* center image */
+  max-height: 95px; /* constrained height */
   object-fit: contain;
   display: block;
   border-radius: 6px;
