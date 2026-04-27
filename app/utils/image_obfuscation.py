@@ -97,3 +97,39 @@ def apply_difficulty_filters(image_bytes: bytes, difficulty: str) -> bytes:
 
     success, buffer = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 90])
     return buffer.tobytes() if success else image_bytes
+
+def stitch_and_obfuscate(ref_bytes: bytes, low_conf_bytes: bytes, difficulty: str) -> bytes:
+    """Stitch reference and low_confidence images horizontally, then apply obfuscation."""
+    params = PARAMS.get(difficulty, PARAMS["easy"])
+    
+    nparr_ref = np.frombuffer(ref_bytes, np.uint8)
+    nparr_low = np.frombuffer(low_conf_bytes, np.uint8)
+    
+    img_ref = cv2.imdecode(nparr_ref, cv2.IMREAD_COLOR)
+    img_low = cv2.imdecode(nparr_low, cv2.IMREAD_COLOR)
+    
+    if img_ref is None or img_low is None:
+        return ref_bytes # Fallback
+        
+    # Resize both to fixed height, maintain or force width
+    # 200 width x 150 height each => 400x150 total
+    img_ref = cv2.resize(img_ref, (200, 150), interpolation=cv2.INTER_CUBIC)
+    img_low = cv2.resize(img_low, (200, 150), interpolation=cv2.INTER_CUBIC)
+    
+    # Generate random noisy gap between words (50px wide)
+    gap = np.ones((150, 50, 3), dtype=np.uint8) * 255
+    # Arabic is RTL: Reference word on right, low confidence on left
+    composite = np.hstack([img_low, gap, img_ref])
+
+    # Distortion pipeline over the ENTIRE composite image
+    # This blurs the boundary between the two words
+    composite = _rotate_image(composite, params["angle"])
+    composite = _wave_distortion(composite, params["amplitude"], params["period"])
+    composite = _add_lines(composite, params["num_lines"])
+    composite = _add_dots(composite, params["num_dots"])
+    composite = _adversarial_noise(composite, params["noise_eps"])
+    if params["blur"]:
+        composite = cv2.GaussianBlur(composite, (3, 3), 0)
+
+    success, buffer = cv2.imencode(".jpg", composite, [cv2.IMWRITE_JPEG_QUALITY, 90])
+    return buffer.tobytes() if success else ref_bytes

@@ -17,6 +17,7 @@ class ChallengeResponse(BaseModel):
     challenge_id: str
     ref_image_url: str
     low_conf_image_url: str
+    composite_image_url: str | None = None
     difficulty: str
     expires_at: datetime
     max_attempts: int

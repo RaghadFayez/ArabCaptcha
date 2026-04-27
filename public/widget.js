@@ -59,8 +59,7 @@ const capPage1 = document.getElementById("capPage1");
 const capPage2 = document.getElementById("capPage2");
 const startBtn = document.getElementById("capStartBtn");
 
-const refImage = document.getElementById("refImage");
-const lowConfImage = document.getElementById("lowConfImage");
+const compositeImage = document.getElementById("compositeImage");
 
 const refAnswerInput = document.getElementById("refAnswer");
 const lowConfAnswerInput = document.getElementById("lowConfAnswer");
@@ -219,8 +218,7 @@ async function loadChallenge(keepStatus = false) {
   challengeId = data.challenge_id;
 
   const getFullUrl = (path) => path.startsWith("http") ? path : `${BACKEND_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
-  refImage.src = getFullUrl(data.ref_image_url);
-  lowConfImage.src = getFullUrl(data.low_conf_image_url);
+  compositeImage.src = getFullUrl(data.composite_image_url);
 
   // Difficulty is now handled purely server-side (Python OpenCV)
   if (data.difficulty === "hard") {

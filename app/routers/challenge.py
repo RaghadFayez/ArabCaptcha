@@ -14,7 +14,7 @@ from app.schemas.challenge import ChallengeCreate, ChallengeResponse
 from app.services.challenge_service import (
     create_challenge, get_challenge, get_image_url, get_word_image_path
 )
-from app.utils.image_obfuscation import apply_difficulty_filters
+from app.utils.image_obfuscation import apply_difficulty_filters, stitch_and_obfuscate
 
 router = APIRouter(prefix="/challenges", tags=["Challenges"])
 
@@ -30,6 +30,7 @@ def request_challenge(payload: ChallengeCreate, db: Session = Depends(get_db)):
         challenge_id=challenge.challenge_id,
         ref_image_url=get_image_url(challenge.challenge_id, challenge.ref_word_id),
         low_conf_image_url=get_image_url(challenge.challenge_id, challenge.low_conf_word_id),
+        composite_image_url=f"/challenges/{challenge.challenge_id}/image_composite",
         difficulty=challenge.difficulty,
         expires_at=challenge.expires_at,
         max_attempts=challenge.max_attempts,
@@ -44,6 +45,7 @@ def fetch_challenge(challenge_id: str, db: Session = Depends(get_db)):
         challenge_id=challenge.challenge_id,
         ref_image_url=get_image_url(challenge.challenge_id, challenge.ref_word_id),
         low_conf_image_url=get_image_url(challenge.challenge_id, challenge.low_conf_word_id),
+        composite_image_url=f"/challenges/{challenge.challenge_id}/image_composite",
         difficulty=challenge.difficulty,
         expires_at=challenge.expires_at,
         max_attempts=challenge.max_attempts,
@@ -82,3 +84,36 @@ def serve_distorted_image(challenge_id: str, word_id: int, difficulty: str | Non
     distorted_bytes = apply_difficulty_filters(image_bytes, difficulty)
 
     return Response(content=distorted_bytes, media_type="image/jpeg")
+
+@router.get("/{challenge_id}/image_composite")
+def serve_composite_image(challenge_id: str, difficulty: str | None = None, db: Session = Depends(get_db)):
+    """
+    Serve a single stitched image containing both the reference and low-confidence words.
+    Distortion is applied over the merged result to mask the boundary.
+    """
+    challenge = get_challenge(challenge_id=challenge_id, db=db)
+    difficulty = difficulty or challenge.difficulty
+
+    # Get raw image paths
+    ref_path = get_word_image_path(word_id=challenge.ref_word_id, db=db)
+    low_path = get_word_image_path(word_id=challenge.low_conf_word_id, db=db)
+
+    if not ref_path or not low_path:
+        raise HTTPException(status_code=404, detail="Word image not found")
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    abs_ref_path = os.path.join(base_dir, ref_path.lstrip("/"))
+    abs_low_path = os.path.join(base_dir, low_path.lstrip("/"))
+
+    if not os.path.isfile(abs_ref_path) or not os.path.isfile(abs_low_path):
+        raise HTTPException(status_code=404, detail="Image file missing from disk")
+
+    with open(abs_ref_path, "rb") as f:
+        ref_bytes = f.read()
+    with open(abs_low_path, "rb") as f:
+        low_bytes = f.read()
+
+    # Apply stitching and difficulty-based distortion
+    stitched_bytes = stitch_and_obfuscate(ref_bytes, low_bytes, difficulty)
+
+    return Response(content=stitched_bytes, media_type="image/jpeg")

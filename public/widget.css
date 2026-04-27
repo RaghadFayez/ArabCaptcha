@@ -120,7 +120,7 @@ body {
 }
 
 .cap-image-composite img {
-  width: 48%; /* fit two images */
+  width: 100%; /* fit single stiched image */
   max-height: 90px;
   object-fit: contain;
   display: block;
