@@ -5,13 +5,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ArabCaptcha Widget</title>
-  <link rel="stylesheet" href="widget.css?v=1.3" />
+  <link rel="stylesheet" href="widget.css" />
 </head>
 
 <body>
   <main class="widget-shell">
     <div class="captcha">
 
+      <!-- Page 1: Initial button -->
       <div class="cap-page cap-page-1" id="capPage1">
         <div class="cap-line">
           <button type="button" class="cap-circle" id="capStartBtn" aria-label="Start captcha"></button>
@@ -19,12 +20,13 @@
         </div>
       </div>
 
+      <!-- Page 2: Challenge -->
       <div class="cap-page cap-page-2 hidden" id="capPage2">
 
         <div class="cap-head">
+          <!-- Single composite image (ref + low-conf stitched by server) -->
           <div class="cap-image-composite">
-            <img id="refImage" alt="الكلمة الأولى (يمين)" />
-            <img id="lowConfImage" alt="الكلمة الثانية (يسار)" />
+            <img id="compositeImage" alt="الكلمتان للتحقق" />
           </div>
 
           <button class="icon-btn refresh-inline" type="button" id="refreshCaptcha" aria-label="Refresh captcha">
@@ -38,7 +40,7 @@
         <div class="cap-sub">اكتب الكلمتين الظاهرتين في الصورة (من اليمين لليسار):</div>
 
         <div class="cap-fields">
-          <input id="refAnswer" type="text" placeholder="الكلمة الأولى (يمين)" autocomplete="off" dir="rtl" />
+          <input id="refAnswer"     type="text" placeholder="الكلمة الأولى (يمين)" autocomplete="off" dir="rtl" />
           <input id="lowConfAnswer" type="text" placeholder="الكلمة الثانية (يسار)" autocomplete="off" dir="rtl" />
         </div>
 
@@ -52,7 +54,7 @@
     </div>
   </main>
 
-  <script src="widget.js?v=1.3"></script>
+  <script src="widget.js"></script>
 </body>
 
 </html>

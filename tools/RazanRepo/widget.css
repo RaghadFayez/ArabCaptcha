@@ -104,7 +104,7 @@ body {
   gap: 12px;
 }
 
-/* ── Image container ───────────────────────────── */
+/* ── Composite image container ───────────────────────────── */
 .cap-image-composite {
   flex: 1;
   border: 1px dashed rgba(0, 0, 0, 0.15);
@@ -113,20 +113,22 @@ body {
   background: rgba(242, 239, 233, 0.75);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   min-height: 80px;
   overflow: hidden;
-  gap: 10px;
 }
 
 .cap-image-composite img {
-  width: 48%; /* fit two images */
+  /* Fill width; keep aspect ratio; max height keeps widget compact */
+  width: 100%;
   max-height: 90px;
   object-fit: contain;
   display: block;
   border-radius: 6px;
   background: #fff;
+  /* Smooth transition when the image swaps during escalation */
   transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease;
+  /* Prevent right-click save / drag — minor friction for attackers */
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
