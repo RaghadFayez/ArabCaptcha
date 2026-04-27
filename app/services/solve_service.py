@@ -98,10 +98,15 @@ def solve_challenge(
         current_bot_score = calculate_bot_score(signals_json)
         challenge.bot_score = current_bot_score
         
-        # Keep session updated with the latest score for adaptive difficulty
+        # Adaptive: Update challenge difficulty based on the newly calculated score
+        from app.utils.bot_scorer import determine_difficulty, determine_risk_level
+        challenge.difficulty = determine_difficulty(current_bot_score)
+        
+        # Keep session updated with the latest score and risk level
         session = db.query(SiteSession).filter(SiteSession.session_id == challenge.session_id).first()
         if session:
             session.bot_score_final = current_bot_score
+            session.risk_level = determine_risk_level(current_bot_score)
 
         # Hard Reject: Fail the challenge immediately if the final score indicates obvious bot behavior
         if current_bot_score >= settings.HIGH_RISK_THRESHOLD:
