@@ -39,7 +39,7 @@ app.include_router(admin.router)
 
 @app.get("/")
 def read_root():
-    demo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "demo.html")
-    if os.path.isfile(demo_path):
-        return FileResponse(demo_path, media_type="text/html")
+    admin_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "admin.html")
+    if os.path.isfile(admin_path):
+        return FileResponse(admin_path, media_type="text/html")
     return {"message": "Welcome to the ArabCaptcha API"}
