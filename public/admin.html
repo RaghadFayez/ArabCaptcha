@@ -73,11 +73,11 @@
     <div class="status-badge">● النظام متصل</div>
 </div>
 
-<iframe id="contentFrame" src="/frontend/words.html"></iframe>
+<iframe id="contentFrame" src="/public/words.html"></iframe>
 
 <script>
     function switchPage(url, el) {
-        document.getElementById('contentFrame').src = '/frontend/' + url;
+        document.getElementById('contentFrame').src = '/public/' + url;
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
     }

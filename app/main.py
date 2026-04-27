@@ -31,14 +31,11 @@ assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", 
 if os.path.isdir(assets_dir):
     app.mount("/assets/words", StaticFiles(directory=assets_dir), name="word_images")
 
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-if os.path.isdir(frontend_dir):
-    app.mount("/frontend", StaticFiles(directory=frontend_dir), name="frontend")
+public_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public")
+if os.path.isdir(public_dir):
+    app.mount("/public", StaticFiles(directory=public_dir), name="public")
 
-# Legacy redirect from /public to /frontend (optional but helpful)
-@app.get("/public/{path:path}")
-def legacy_public_redirect(path: str):
-    return FileResponse(os.path.join(frontend_dir, path))
+# No need for redirect anymore as it's /public again
 
 # Include all the API routers
 app.include_router(session.router)
@@ -49,7 +46,7 @@ app.include_router(admin.router)
 
 @app.get("/")
 def read_root():
-    admin_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "admin.html")
+    admin_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "admin.html")
     if os.path.isfile(admin_path):
         return FileResponse(admin_path, media_type="text/html")
     return {"message": "Welcome to the ArabCaptcha API"}
