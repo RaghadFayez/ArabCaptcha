@@ -121,6 +121,9 @@ def stitch_and_obfuscate(ref_bytes: bytes, low_conf_bytes: bytes, difficulty: st
     # Arabic is RTL: Reference word on right, low confidence on left
     composite = np.hstack([img_low, gap, img_ref])
 
+    # Add generous white padding to prevent words from being cropped during rotation/waves
+    composite = cv2.copyMakeBorder(composite, 25, 25, 25, 25, cv2.BORDER_CONSTANT, value=[255, 255, 255])
+
     # Distortion pipeline over the ENTIRE composite image
     # This blurs the boundary between the two words
     composite = _rotate_image(composite, params["angle"])
