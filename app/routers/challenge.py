@@ -52,8 +52,10 @@ def fetch_challenge(challenge_id: str, db: Session = Depends(get_db)):
     )
 
 
+from typing import Optional
+
 @router.get("/{challenge_id}/image/{word_id}")
-def serve_distorted_image(challenge_id: str, word_id: int, difficulty: str | None = None, db: Session = Depends(get_db)):
+def serve_distorted_image(challenge_id: str, word_id: int, difficulty: Optional[str] = None, db: Session = Depends(get_db)):
     """
     Serve a word image with difficulty-based visual distortion applied on-the-fly.
     'difficulty' can be passed as a query param for admin previews, 
@@ -86,7 +88,7 @@ def serve_distorted_image(challenge_id: str, word_id: int, difficulty: str | Non
     return Response(content=distorted_bytes, media_type="image/jpeg")
 
 @router.get("/{challenge_id}/image_composite")
-def serve_composite_image(challenge_id: str, difficulty: str | None = None, db: Session = Depends(get_db)):
+def serve_composite_image(challenge_id: str, difficulty: Optional[str] = None, db: Session = Depends(get_db)):
     """
     Serve a single stitched image containing both the reference and low-confidence words.
     Distortion is applied over the merged result to mask the boundary.

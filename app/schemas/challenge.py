@@ -12,12 +12,14 @@ class ChallengeCreate(BaseModel):
     session_id: str = Field(..., description="Active session ID")
 
 
+from typing import Optional
+
 class ChallengeResponse(BaseModel):
     """Response containing challenge details and image URLs."""
     challenge_id: str
     ref_image_url: str
     low_conf_image_url: str
-    composite_image_url: str | None = None
+    composite_image_url: Optional[str] = None
     difficulty: str
     expires_at: datetime
     max_attempts: int

@@ -6,11 +6,13 @@ Pydantic models for session-related API requests and responses.
 from pydantic import BaseModel, Field
 
 
+from typing import Optional
+
 class SessionCreate(BaseModel):
     """POST /sessions — create a new CAPTCHA session."""
     api_key: str = Field(..., description="Raw API key for the client site")
     domain: str = Field(..., description="Origin domain of the request")
-    signals_json: str | None = Field(None, description="JSON string of behavioral signals")
+    signals_json: Optional[str] = Field(None, description="JSON string of behavioral signals")
 
 
 class SessionResponse(BaseModel):
