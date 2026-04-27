@@ -30,6 +30,11 @@ frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "fronten
 if os.path.isdir(frontend_dir):
     app.mount("/frontend", StaticFiles(directory=frontend_dir), name="frontend")
 
+# Legacy redirect from /public to /frontend (optional but helpful)
+@app.get("/public/{path:path}")
+def legacy_public_redirect(path: str):
+    return FileResponse(os.path.join(frontend_dir, path))
+
 # Include all the API routers
 app.include_router(session.router)
 app.include_router(challenge.router)
