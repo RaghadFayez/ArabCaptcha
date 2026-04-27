@@ -78,6 +78,7 @@ def get_dashboard_stats(db: Session = Depends(get_db)):
     bot_sessions = db.query(SiteSession).filter(SiteSession.risk_level == "high").count()
     passed_challenges = db.query(Challenge).filter(Challenge.status == "passed").count()
     active_words = db.query(ReferenceWord).filter(ReferenceWord.active == True).count()
+    total_words = db.query(Word).count()
     
     bot_rate = (bot_sessions / total_sessions * 100) if total_sessions > 0 else 0
     solve_rate = (passed_challenges / total_challenges * 100) if total_challenges > 0 else 0
@@ -87,7 +88,8 @@ def get_dashboard_stats(db: Session = Depends(get_db)):
         total_challenges=total_challenges,
         bot_rate=round(bot_rate, 2),
         solve_rate=round(solve_rate, 2),
-        active_words=active_words
+        active_words=active_words,
+        total_words=total_words
     )
 
 

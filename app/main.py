@@ -26,9 +26,9 @@ assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", 
 if os.path.isdir(assets_dir):
     app.mount("/assets/words", StaticFiles(directory=assets_dir), name="word_images")
 
-public_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public")
-if os.path.isdir(public_dir):
-    app.mount("/public", StaticFiles(directory=public_dir), name="public")
+frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
+if os.path.isdir(frontend_dir):
+    app.mount("/frontend", StaticFiles(directory=frontend_dir), name="frontend")
 
 # Include all the API routers
 app.include_router(session.router)
@@ -39,7 +39,7 @@ app.include_router(admin.router)
 
 @app.get("/")
 def read_root():
-    demo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "demo.html")
+    demo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "demo.html")
     if os.path.isfile(demo_path):
         return FileResponse(demo_path, media_type="text/html")
     return {"message": "Welcome to the ArabCaptcha API"}

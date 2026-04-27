@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مراقبة التحديات</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:#F5F4F0;--surface:#FFFFFF;--surface-2:#EFEDE8;--border:#E2DFDA;
+            --text-primary:#1A1917;--text-secondary:#6B6860;--text-muted:#9C9A96;
+            --accent:#1A1917;--green:#2D6A4F;--green-bg:#EBF5F0;--amber:#92400E;--amber-bg:#FEF3C7;
+            --red:#991B1B;--red-bg:#FEF2F2;--blue:#1E3A8A;--blue-bg:#EFF6FF;
+            --radius-lg:14px;
+        }
+        body { font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text-primary);padding:32px; }
+        .page { max-width:1000px; margin:0 auto; }
+        .stats-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px; }
+        .stat-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px; }
+        .stat-label { font-size:12px;color:var(--text-secondary);margin-bottom:8px;display:block; }
+        .stat-value { font-size:32px;font-weight:600; }
+        .card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden; }
+        .card-header { padding:16px 24px;border-bottom:1px solid var(--border);font-weight:600; }
+        table { width:100%;border-collapse:collapse;font-size:14px; }
+        thead th { text-align:right;padding:12px 16px;background:var(--surface-2);color:var(--text-muted);font-size:11px;text-transform:uppercase; }
+        tbody td { padding:14px 16px;border-bottom:1px solid var(--border); }
+        .badge { display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600; }
+        .badge-success { background:var(--green-bg);color:var(--green); }
+        .badge-warning { background:var(--amber-bg);color:var(--amber); }
+        .badge-danger { background:var(--red-bg);color:var(--red); }
+        .badge-blue { background:var(--blue-bg);color:var(--blue); }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <h1 style="font-size:20px; margin-bottom:20px;">🛡️ نظام مراقبة البوتات والتحديات</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">إجمالي الجلسات</span>
+            <div class="stat-value" id="valSessions">-</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">نسبة اكتشاف البوتات</span>
+            <div class="stat-value" id="valBotRate" style="color:var(--red)">-%</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">نسبة تخطي الكابتشا</span>
+            <div class="stat-value" id="valSolveRate">-%</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">سجل التحديات الحية</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>الجلسة</th>
+                    <th>التاريخ</th>
+                    <th>الصعوبة</th>
+                    <th>الحالة</th>
+                    <th>Bot Score</th>
+                </tr>
+            </thead>
+            <tbody id="challengesTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    async function loadStats() {
+        const stats = await (await fetch('/admin/stats')).json();
+        document.getElementById('valSessions').textContent = stats.total_sessions;
+        document.getElementById('valBotRate').textContent = stats.bot_rate + '%';
+        document.getElementById('valSolveRate').textContent = stats.solve_rate + '%';
+    }
+
+    async function loadChallenges() {
+        try {
+            const data = await (await fetch('/admin/recent-challenges')).json();
+            const body = document.getElementById('challengesTableBody');
+            if (!body) return;
+            
+            body.innerHTML = data.map(c => {
+                const sid = c.session_id ? c.session_id.substr(0,10) : 'N/A';
+                const date = c.created_at ? new Date(c.created_at).toLocaleString('ar-SA') : '-';
+                const statusLabel = c.status === 'passed' ? 'ناجح' : (c.status === 'failed' ? 'لم يتخطى' : 'قيد الانتظار');
+                const badgeClass = c.status === 'passed' ? 'badge-success' : 'badge-warning';
+                
+                return `
+                    <tr>
+                        <td style="font-family:monospace">${sid}...</td>
+                        <td style="color:var(--text-muted); font-size:12px">${date}</td>
+                        <td><span class="badge badge-blue">${(c.difficulty || 'easy').toUpperCase()}</span></td>
+                        <td><span class="badge ${badgeClass}">${statusLabel}</span></td>
+                        <td style="font-weight:700; color:${(c.bot_score || 0) > 50 ? 'var(--red)' : '#111'}">${c.bot_score || 0}%</td>
+                    </tr>
+                `;
+            }).join('');
+        } catch(e) {
+            console.error('Error loading challenges:', e);
+        }
+    }
+
+    loadStats();
+    loadChallenges();
+</script>
+
+</body>
+</html>

@@ -7,6 +7,7 @@ class DashboardStats(BaseModel):
     bot_rate: float  # Percentage of sessions with risk_level 'high'
     solve_rate: float # Percentage of challenges with status 'passed'
     active_words: int
+    total_words: int
 
 class RecentSession(BaseModel):
     session_id: str
@@ -18,6 +19,7 @@ class RecentSession(BaseModel):
 
 class RecentChallenge(BaseModel):
     challenge_id: str
+    session_id: str
     created_at: datetime
     difficulty: str
     status: str

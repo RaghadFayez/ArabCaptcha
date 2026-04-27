@@ -41,6 +41,20 @@ assets_dir = os.path.join(os.path.dirname(__file__), "assets", "words")
 if os.path.isdir(assets_dir):
     app.mount("/assets/words", StaticFiles(directory=assets_dir), name="word_images")
 
+# ── Static files for frontend ───────────────────────────────────────────
+frontend_dir = os.path.join(os.path.dirname(__file__), "frontend")
+if os.path.isdir(frontend_dir):
+    app.mount("/frontend", StaticFiles(directory=frontend_dir), name="frontend")
+
+
+@app.get("/", tags=["Health"])
+def health_check():
+    """Redirect to admin for easy access."""
+    admin_path = os.path.join(os.path.dirname(__file__), "frontend", "admin.html")
+    if os.path.isfile(admin_path):
+        return FileResponse(admin_path)
+    return {"status": "ok", "service": "ArabCaptcha", "view": "/frontend/admin.html"}
+
 # ── Register routers ────────────────────────────────────────────────────
 app.include_router(session.router)
 app.include_router(challenge.router)
@@ -48,11 +62,6 @@ app.include_router(solve.router)
 app.include_router(ocr.router)
 app.include_router(admin.router)
 
-
-@app.get("/", tags=["Health"])
-def health_check():
-    """Simple health check endpoint."""
-    return {"status": "ok", "service": "ArabCaptcha"}
 
 
 @app.exception_handler(Exception)

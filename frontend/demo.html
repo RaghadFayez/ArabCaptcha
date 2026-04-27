@@ -219,7 +219,7 @@
             <div class="snippet-label">📦 أضف الكابتشا لأي موقع بسطر واحد:</div>
             <div class="snippet">
                 <button class="copy-btn" onclick="copySnippet()">نسخ</button>
-                &lt;script src="/public/arabcaptcha.js"&gt;&lt;/script&gt;
+                &lt;script src="/frontend/arabcaptcha.js"&gt;&lt;/script&gt;
             </div>
         </div>
 
@@ -247,7 +247,7 @@
         const frame = document.getElementById('captchaFrame');
         
         // Force refresh iframe with cache buster to avoid seeing old versions
-        const baseSrc = "/public/widget.html?domain=https://arabcaptcha.onrender.com&site_key=demo";
+        const baseSrc = "/frontend/widget.html?domain=https://arabcaptcha.onrender.com&site_key=demo";
         frame.src = baseSrc + "&v=" + Date.now();
 
         // Expand iframe when widget opens challenge (page 2 is taller)
@@ -287,7 +287,7 @@
         }, 400);
 
         function copySnippet() {
-            navigator.clipboard.writeText('<script src="http://127.0.0.1:8000/public/arabcaptcha.js"><\/script>');
+            navigator.clipboard.writeText('<script src="https://arabcaptcha.onrender.com/frontend/arabcaptcha.js"><\/script>');
             const btn = document.querySelector('.copy-btn');
             btn.textContent = '✅ تم';
             setTimeout(() => btn.textContent = 'نسخ', 2000);
