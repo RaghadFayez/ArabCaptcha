@@ -1,3 +1,4 @@
+from typing import Optional
 """
 services/ocr_service.py
 
@@ -13,9 +14,9 @@ from app.db.models import Word, ReferenceWord, LowConfidenceWord
 def ingest_word(
     image_path: str,
     word_type: str,
-    correct_text: str | None,
-    source: str | None,
-    initial_confidence: float | None,
+    correct_text: Optional[str],
+    source: Optional[str],
+    initial_confidence: Optional[float],
     db: Session,
 ) -> Word:
     """

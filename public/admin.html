@@ -67,7 +67,7 @@
     <div class="nav-menu">
         <button class="nav-btn active" onclick="switchPage('words.html', this)">الكلمات</button>
         <button class="nav-btn" onclick="switchPage('challenges.html', this)">التحديات</button>
-        <button class="nav-btn" onclick="switchPage('demo.html', this)">Live Demo</button>
+        <button class="nav-btn" onclick="openLiveDemo()">Live Demo ↗</button>
     </div>
 
     <div class="status-badge">● النظام متصل</div>
@@ -80,6 +80,10 @@
         document.getElementById('contentFrame').src = '/public/' + url;
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
+    }
+
+    function openLiveDemo() {
+        window.open('/public/demo.html', '_blank');
     }
 </script>
 

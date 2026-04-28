@@ -1,3 +1,4 @@
+from typing import Optional
 """
 services/session_service.py
 
@@ -15,7 +16,7 @@ from app.utils.bot_scorer import calculate_bot_score, determine_risk_level
 def create_session(
     api_key: str,
     domain: str,
-    signals_json: str | None,
+    signals_json: Optional[str],
     db: Session,
 ) -> SiteSession:
     """

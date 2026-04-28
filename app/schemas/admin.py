@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -12,9 +13,9 @@ class DashboardStats(BaseModel):
 class RecentSession(BaseModel):
     session_id: str
     session_created_at: datetime
-    bot_score_initial: float | None
-    bot_score_final: float | None
-    risk_level: str | None
+    bot_score_initial: Optional[float]
+    bot_score_final: Optional[float]
+    risk_level: Optional[str]
     status: str
 
 class RecentChallenge(BaseModel):
@@ -24,4 +25,4 @@ class RecentChallenge(BaseModel):
     difficulty: str
     status: str
     is_human_verified: bool
-    bot_score: float | None
+    bot_score: Optional[float]

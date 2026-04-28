@@ -1,3 +1,4 @@
+from typing import Optional
 """
 services/solve_service.py
 
@@ -27,8 +28,8 @@ def solve_challenge(
     challenge_id: str,
     ref_answer: str,
     low_conf_answer: str,
-    response_time_ms: float | None,
-    signals_json: str | None,
+    response_time_ms: Optional[float],
+    signals_json: Optional[str],
     db: Session,
 ) -> dict:
     """

@@ -1,3 +1,4 @@
+from typing import Optional
 """
 db/models.py
 
@@ -68,10 +69,10 @@ class SiteSession(Base):
     session_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     site_id: Mapped[int] = mapped_column(ForeignKey("client_site.site_id"), nullable=False)
     session_created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
-    bot_score_initial: Mapped[float | None] = mapped_column(Float, nullable=True)
-    bot_score_final: Mapped[float | None] = mapped_column(Float, nullable=True)
+    bot_score_initial: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    bot_score_final: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     # risk_level: "low" | "med" | "high"
-    risk_level: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    risk_level: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
     # status: "active" | "completed" | "expired"
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="active")
 
@@ -93,7 +94,7 @@ class BehaviorLog(Base):
     timestamp: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     # event_type examples: "mouse_move", "keystroke", "paste", "submit"
     event_type: Mapped[str] = mapped_column(String(100), nullable=False)
-    signals_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    signals_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Relationships
     session: Mapped["SiteSession"] = relationship("SiteSession", back_populates="behavior_logs")
@@ -128,7 +129,7 @@ class ReferenceWord(Base):
     word_id: Mapped[int] = mapped_column(ForeignKey("word.word_id"), primary_key=True)
     correct_text: Mapped[str] = mapped_column(String(255), nullable=False)
     # source: where the word came from, e.g. "manual", "book_scan"
-    source: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    source: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     # Relationships
@@ -145,11 +146,11 @@ class LowConfidenceWord(Base):
     __tablename__ = "low_confidence_word"
 
     word_id: Mapped[int] = mapped_column(ForeignKey("word.word_id"), primary_key=True)
-    initial_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    initial_confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     # status: "pending" | "verified" | "unreadable"
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
-    verified_text: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    verified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    verified_text: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     total_votes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     # Relationships
@@ -179,7 +180,7 @@ class Challenge(Base):
     session_id: Mapped[str] = mapped_column(ForeignKey("site_session.session_id"), nullable=False)
     ref_word_id: Mapped[int] = mapped_column(ForeignKey("reference_word.word_id"), nullable=False)
     low_conf_word_id: Mapped[int] = mapped_column(ForeignKey("low_confidence_word.word_id"), nullable=False)
-    bot_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    bot_score: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     # difficulty: "easy" | "medium" | "hard"
     difficulty: Mapped[str] = mapped_column(String(10), nullable=False, default="easy")
     max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
@@ -209,15 +210,15 @@ class Attempt(Base):
     challenge_id: Mapped[str] = mapped_column(ForeignKey("challenge.challenge_id"), nullable=False)
     attempt_number: Mapped[int] = mapped_column(Integer, nullable=False)
     # Reference word inputs
-    reference_input_text: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    reference_input_normalized: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    reference_input_text: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    reference_input_normalized: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     # Low-confidence word inputs
-    low_conf_input_text: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    low_conf_input_normalized: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    low_conf_input_text: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    low_conf_input_normalized: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     passed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    response_time_ms: Mapped[float | None] = mapped_column(Float, nullable=True)
+    response_time_ms: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
-    signals_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    signals_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Relationships
     challenge: Mapped["Challenge"] = relationship("Challenge", back_populates="attempts")
@@ -258,7 +259,7 @@ class LowConfidenceConsensus(Base):
     __tablename__ = "low_confidence_consensus"
 
     low_conf_word_id: Mapped[int] = mapped_column(ForeignKey("low_confidence_word.word_id"), primary_key=True)
-    top_candidate_text: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    top_candidate_text: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     votes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     total: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     ratio: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)

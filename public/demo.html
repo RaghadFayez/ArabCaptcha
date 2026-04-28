@@ -4,273 +4,394 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ArabCaptcha — Demo</title>
+    <title>ArabCaptcha | Enterprise Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f2efe9;
-            --card: rgba(255, 255, 255, 0.82);
-            --stroke: rgba(0, 0, 0, 0.09);
-            --text: #2a2a2a;
-            --muted: rgba(0, 0, 0, 0.50);
-            --btn: #6b5f52;
-            --btn-hover: #5a5046;
-            --shadow: 0 24px 60px rgba(0, 0, 0, 0.13);
-            --radius: 18px;
+            --bg-body: #F9F8F6;
+            --bg-surface: #FFFFFF;
+            --primary: #6b5f52;
+            --primary-hover: #5a5046;
+            --text-main: #1A1A1A;
+            --text-muted: #6B6860;
+            --border-color: rgba(107, 95, 82, 0.15);
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 24px 48px rgba(107, 95, 82, 0.12);
         }
 
-        *,
-        *::before,
-        *::after {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
         body {
+            background-color: var(--bg-body);
+            font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
             min-height: 100vh;
-            background: var(--bg);
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-            color: var(--text);
-            display: grid;
-            place-items: center;
-            padding: 24px;
-        }
-
-        .wrapper {
-            width: min(420px, 92vw);
             display: flex;
             flex-direction: column;
-            gap: 16px;
         }
 
-        /* ── Logo row ── */
-        .brand {
+        /* --- Navbar --- */
+        .navbar {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 48px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 4px;
         }
 
-        .brand-logo {
-            width: 36px;
-            height: 36px;
-            background: var(--btn);
-            border-radius: 10px;
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.5px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
+        }
+        
+        .brand-name::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            text-align: center;
+            padding: 80px 24px 40px;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        .hero p {
             font-size: 1.1rem;
-            color: #fff;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 40px;
         }
 
-        .brand h1 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-            color: var(--text);
+        /* --- Main Content Grid --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto 80px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            align-items: flex-start;
         }
 
-        .live-badge {
-            background: rgba(107, 95, 82, 0.12);
-            color: var(--btn);
-            border: 1px solid rgba(107, 95, 82, 0.25);
-            border-radius: 999px;
-            padding: 2px 10px;
-            font-size: 0.72rem;
-            font-weight: 700;
+        /* --- Widget Card --- */
+        .demo-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* ── Demo card ── */
-        .card {
-            background: var(--card);
-            border: 1px solid var(--stroke);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 24px 22px 18px;
-        }
-
-        .card-label {
-            font-size: 11px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
+        .demo-header {
+            width: 100%;
+            text-align: right;
+            margin-bottom: 24px;
             font-weight: 600;
-            margin-bottom: 14px;
+            font-size: 1.1rem;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
         }
 
-        /* ── Captcha frame — grows with content ── */
+        .captcha-wrapper {
+            width: 100%;
+            max-width: 420px; /* Force the iframe wrapper to the compact 420px size */
+            margin: 0 auto;
+        }
+
         .captcha-frame {
             width: 100%;
             border: none;
             border-radius: 12px;
             display: block;
-            /* Start at collapsed height; JS will expand it */
-            height: 68px;
+            height: 68px; /* Initial collapsed height */
             transition: height 0.25s ease;
             background: transparent;
         }
 
-        /* ── Snippet box ── */
-        .snippet-label {
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 6px;
+        /* --- Control Panel --- */
+        .control-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
         }
 
-        .snippet {
-            background: rgba(255, 255, 255, 0.65);
-            border: 1px solid var(--stroke);
-            border-radius: 12px;
-            padding: 12px 14px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.72rem;
-            color: var(--btn);
-            line-height: 1.6;
-            word-break: break-all;
-            position: relative;
+        .control-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 16px;
         }
+
+        .metrics {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .metric-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-weight: 700;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-sim {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: right;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-sim:hover {
+            background: var(--bg-body);
+        }
+
+        .btn-sim.easy { border-left: 4px solid #1e7e34; }
+        .btn-sim.medium { border-left: 4px solid #d39e00; }
+        .btn-sim.hard { border-left: 4px solid #b03a2e; }
+
+        /* --- Integration Code --- */
+        .integration-section {
+            max-width: 900px;
+            margin: 0 auto 80px;
+            padding: 0 24px;
+        }
+
+        .integration-card {
+            background: #1E1E1E; /* Dark terminal look */
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            direction: ltr; /* Code is typically LTR */
+            text-align: left;
+        }
+
+        .integration-card::before {
+            content: 'Terminal';
+            display: block;
+            color: #888;
+            font-size: 0.75rem;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .code-snippet {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: #A9DC76;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .token-tag { color: #FF6188; }
+        .token-attr { color: #78DCE8; }
+        .token-str { color: #E6DB74; }
 
         .copy-btn {
             position: absolute;
-            top: 8px;
-            left: 8px;
-            background: rgba(107, 95, 82, 0.10);
-            border: 1px solid rgba(107, 95, 82, 0.20);
-            color: var(--btn);
-            border-radius: 8px;
-            padding: 2px 9px;
-            font-size: 0.68rem;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 600;
-            transition: background 0.15s;
-        }
-
-        .copy-btn:hover {
-            background: rgba(107, 95, 82, 0.18);
-        }
-
-        /* ── Features ── */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .feat {
-            background: var(--card);
-            border: 1px solid var(--stroke);
-            border-radius: 14px;
-            padding: 12px 8px;
-            text-align: center;
-        }
-
-        .feat-icon {
-            font-size: 1.4rem;
-            margin-bottom: 4px;
-        }
-
-        .feat-title {
+            top: 20px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FFF;
+            padding: 6px 12px;
+            border-radius: 6px;
             font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .feat-sub {
-            font-size: 0.67rem;
-            color: var(--muted);
-            margin-top: 2px;
+        .copy-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 { font-size: 2.2rem; }
         }
     </style>
 </head>
 
 <body>
-    <div class="wrapper">
 
-        <div class="brand">
-            <div class="brand-logo">🔐</div>
-            <h1>ArabCaptcha</h1>
-            <span class="live-badge">Live Demo</span>
+    <nav class="navbar">
+        <div class="brand-name">ArabCaptcha</div>
+        <div class="nav-links">
+            <a href="#">المميزات</a>
+            <a href="#">التوثيق</a>
+            <a href="/public/admin.html">لوحة الإدارة</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>حماية ذكية، بهوية عربية.</h1>
+        <p>نظام التحقق البشري الأول المصمم لفهم الأنماط السلوكية بذكاء، والتصدي للهجمات الآلية عبر تقنيات التعمية البصرية המتقدمة للخط العربي.</p>
+    </section>
+
+    <div class="container">
+        <!-- Widget Demo Column -->
+        <div class="demo-card">
+            <div class="demo-header">المعاينة المباشرة (Live Demo)</div>
+            <div class="captcha-wrapper">
+                <iframe id="captchaFrame" class="captcha-frame" scrolling="no" allowtransparency="true"></iframe>
+            </div>
         </div>
 
-        <div class="card">
-            <div class="card-label">🧪 جرّب الكابتشا مباشرة</div>
-            <iframe id="captchaFrame" class="captcha-frame"
-                scrolling="no"
-                allowtransparency="true"></iframe>
-                
-            <!-- لوحة اختبار مستويات الصعوبة -->
-            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ddd; font-family: sans-serif; direction: rtl; text-align: right;">
-                <h4 style="margin: 0 0 10px 0; color: #222; font-size: 13px;">لوحة اختبار مستويات الصعوبة</h4>
-                <div style="font-size: 12px; margin-bottom: 12px; color: #555;">
-                    <span style="display:inline-block; width: 100px;"><strong>درجة الخطورة:</strong></span> <span id="demoScore" style="color:#b03a2e; font-weight:bold;">0</span> / 100 <br>
-                    <span style="display:inline-block; width: 100px;"><strong>الصعوبة:</strong></span> <span id="demoDiff" style="color:#1e7e34; font-weight:bold;">طبيعي (سهل)</span>
+        <!-- Controls Column -->
+        <div class="control-panel">
+            <div class="control-title">لوحة محاكاة السلوك</div>
+            
+            <div class="metrics">
+                <div class="metric-row">
+                    <span class="metric-label">درجة الخطورة:</span>
+                    <span class="metric-value" id="demoScore" style="color: #b03a2e;">0 / 100</span>
                 </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button style="border: 1px solid #1e7e34; background: transparent; color: #1e7e34; cursor: pointer; padding: 6px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; flex: 1;" onclick="simulateInWidget('easy')">سلوك طبيعي (سهل)</button>
-                    <button style="border: 1px solid #d39e00; background: transparent; color: #d39e00; cursor: pointer; padding: 6px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; flex: 1;" onclick="simulateInWidget('medium')">سلوك مريب (متوسط)</button>
-                    <button style="border: 1px solid #b03a2e; background: transparent; color: #b03a2e; cursor: pointer; padding: 6px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; flex: 1;" onclick="simulateInWidget('hard')">نشاط آلي (صعب)</button>
+                <div class="metric-row">
+                    <span class="metric-label">التصنيف الحالي:</span>
+                    <span class="metric-value" id="demoDiff" style="color: #1e7e34;">طبيعي</span>
                 </div>
             </div>
-        </div>
 
-        <div class="card">
-            <div class="snippet-label">📦 أضف الكابتشا لأي موقع بسطر واحد:</div>
-            <div class="snippet">
-                <button class="copy-btn" onclick="copySnippet()">نسخ</button>
-                &lt;script src="/public/arabcaptcha.js"&gt;&lt;/script&gt;
-            </div>
-        </div>
-
-        <div class="features">
-            <div class="feat">
-                <div class="feat-icon">🤖</div>
-                <div class="feat-title">كشف البوت</div>
-                <div class="feat-sub">تحليل سلوكي فوري</div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">🌍</div>
-                <div class="feat-title">عربي أصيل</div>
-                <div class="feat-sub">ألغاز بالخط العربي</div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">⚡</div>
-                <div class="feat-title">API مفتوحة</div>
-                <div class="feat-sub">قابلة للدمج بأي موقع</div>
+            <div class="btn-group">
+                <button class="btn-sim easy" onclick="simulateInWidget('easy')">
+                    <span>محاكاة مستخدم حقيقي</span>
+                    <span style="color: #1e7e34;">سهل</span>
+                </button>
+                <button class="btn-sim medium" onclick="simulateInWidget('medium')">
+                    <span>محاكاة سلوك مريب</span>
+                    <span style="color: #d39e00;">متوسط</span>
+                </button>
+                <button class="btn-sim hard" onclick="simulateInWidget('hard')">
+                    <span>محاكاة هجوم آلي (Bot)</span>
+                    <span style="color: #b03a2e;">صعب</span>
+                </button>
             </div>
         </div>
-
     </div>
+
+    <section class="integration-section">
+        <div class="integration-card">
+            <button class="copy-btn" onclick="copySnippet()">Copy Snippet</button>
+            <div class="code-snippet">
+                &lt;<span class="token-tag">script</span> <span class="token-attr">src</span>=<span class="token-str">"https://arabcaptcha.onrender.com/public/arabcaptcha.js"</span>&gt;&lt;/<span class="token-tag">script</span>&gt;<br><br>
+                &lt;<span class="token-tag">script</span>&gt;<br>
+                &nbsp;&nbsp;ArabCaptcha.render(<span class="token-str">"#captcha-container"</span>, {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;apiKey: <span class="token-str">"YOUR_CLIENT_KEY"</span>,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;onSuccess: function(token) {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(<span class="token-str">"Verified. Token:"</span>, token);<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                &nbsp;&nbsp;});<br>
+                &lt;/<span class="token-tag">script</span>&gt;
+            </div>
+        </div>
+    </section>
 
     <script>
         const frame = document.getElementById('captchaFrame');
         
-        // Force refresh iframe with cache buster to avoid seeing old versions
+        // Load the widget
         const baseSrc = "/public/widget.html?domain=https://arabcaptcha.onrender.com&site_key=demo";
         frame.src = baseSrc + "&v=" + Date.now();
 
-        // Expand iframe when widget opens challenge (page 2 is taller)
+        // Handle iframe resizing and score updates
         window.addEventListener('message', (e) => {
             if (!e.data) return;
-            // arabcaptcha events
-            if (e.data.type === 'arabcaptcha:resize' && e.data.height) {
-                frame.style.height = e.data.height + 'px';
-            }
+            
             if (e.data.type === 'ARABCAPTCHA_RESIZE' && e.data.height) {
                 frame.style.height = e.data.height + 'px';
             }
             if (e.data.type === 'ARABCAPTCHA_DEBUG_SCORE') {
-                document.getElementById('demoScore').textContent = e.data.score;
+                document.getElementById('demoScore').textContent = e.data.score + " / 100";
             }
             if (e.data.type === 'ARABCAPTCHA_DEBUG_DIFF') {
                 const diffEl = document.getElementById('demoDiff');
-                diffEl.textContent = e.data.diffText;
+                // Trim the text to just the classification if it contains parentheses
+                let text = e.data.diffText;
+                if(text.includes('(')) text = text.split('(')[0].trim();
+                diffEl.textContent = text;
                 diffEl.style.color = e.data.color;
-            }
-            // fallback: any positive height number sent from widget
-            if (typeof e.data === 'number' && e.data > 50) {
-                frame.style.height = e.data + 'px';
             }
         });
 
@@ -278,21 +399,22 @@
             frame.contentWindow.postMessage({ type: 'SIMULATE_BEHAVIOR', level: level }, '*');
         }
 
-        // Fallback: poll iframe content height every 400ms
-        setInterval(() => {
-            try {
-                const h = frame.contentDocument?.documentElement?.scrollHeight;
-                if (h && h > 60) frame.style.height = h + 'px';
-            } catch (_) { /* cross-origin — ignore */ }
-        }, 400);
-
+        // Copy functionality
         function copySnippet() {
-            navigator.clipboard.writeText('<script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"><\/script>');
+            const codeToCopy = `<script src="https://arabcaptcha.onrender.com/public/arabcaptcha.js"><\/script>
+<script>
+  ArabCaptcha.render("#captcha-container", {
+    apiKey: "YOUR_CLIENT_KEY",
+    onSuccess: function(token) {
+      console.log("Verified. Token:", token);
+    }
+  });
+<\/script>`;
+            navigator.clipboard.writeText(codeToCopy);
             const btn = document.querySelector('.copy-btn');
-            btn.textContent = '✅ تم';
-            setTimeout(() => btn.textContent = 'نسخ', 2000);
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy Snippet', 2000);
         }
     </script>
 </body>
-
 </html>

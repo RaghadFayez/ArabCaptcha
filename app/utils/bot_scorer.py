@@ -1,3 +1,4 @@
+from typing import Optional
 """
 utils/bot_scorer.py
 
@@ -8,7 +9,7 @@ import json
 from app.core.config import settings
 
 
-def calculate_bot_score(signals_json: str | None) -> float:
+def calculate_bot_score(signals_json: Optional[str]) -> float:
     """
     Analyze behavior signals and return a bot score (0–100).
     Higher = more suspicious. 100 = definitely a bot.
