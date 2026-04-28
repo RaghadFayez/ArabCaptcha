@@ -355,16 +355,30 @@ verifyBtn.addEventListener("click", async () => {
 
     if (data.passed) {
       verifiedToken = data.token || "verified";
-      captchaStatus.textContent = "✅ تم التحقق بنجاح!";
-      captchaStatus.style.color = "#1e7e34";
       failedAttempts = 0;
       refAnswerInput.disabled = true;
       lowConfAnswerInput.disabled = true;
+
+      // Collapse challenge page
+      capPage2.classList.add("hidden");
+      // Show initial widget page as a success state
+      capPage1.classList.remove("hidden");
+      
+      startBtn.style.backgroundImage = "none";
+      startBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e7e34" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 8px;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+      startBtn.style.borderColor = "#1e7e34";
+      startBtn.disabled = true;
+      startBtn.style.cursor = "default";
+      
+      const capText = document.querySelector(".cap-text");
+      capText.textContent = "تم التحقق بنجاح";
+      capText.style.color = "#1e7e34";
 
       window.parent.postMessage(
         { type: "ARABCAPTCHA_SUCCESS", token: verifiedToken },
         "*"
       );
+      notifyParentHeight();
     } else {
       failedAttempts++;
       if (failedAttempts >= 3) {
