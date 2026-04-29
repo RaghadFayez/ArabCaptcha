@@ -25,7 +25,7 @@ body {
   width: 100%;
   max-width: 420px;
   margin: auto;
-  padding: 8px;
+  padding: 8px 8px 25px 8px;
 }
 
 .captcha {
@@ -114,8 +114,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 80px;
-  overflow: hidden;
+  min-height: auto;
+  overflow: visible;
   gap: 10px;
 }
 
